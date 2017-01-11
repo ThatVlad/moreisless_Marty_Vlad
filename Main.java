@@ -1,4 +1,4 @@
-package com.vbarvinko;
+package moreisless_Marty_Vlad;
 
 import java.util.Scanner;
 
