@@ -3,59 +3,63 @@ package moreisless_Marty_Vlad;
 import java.awt.*;
 import java.util.Scanner;
 
-public class Main {
-    static char[][] walls;
-    static Scanner sc;
-    static char myC; // my color
-    static char frC; // teammate Color
+import static moreisless_Marty_Vlad.Colors.myC;
 
-    static void initiateWalls () {
-        walls = new char[19][19];
-        int i = 0; // current index
-        char w;
-        String input = sc.next();
-        for (int y = 2; y < 14; y++) { // for each of the seven rows
-            for (int x = 1; x < 8; x++) { // get vertical walls
-                w = input.charAt(i);
-                i++;
-                walls[2*x+2][2*y+1] = w;
+public class Main {
+    static Scanner sc;
+
+    static void initialTurn() {
+        Walls.initiateWalls(sc);
+        Colors.initiateColors(sc);
+        for(int i = 0; i < myC; i++) {
+            TrueState.decodeTurnAndUpdate(sc.next(), i);
+        }
+        TrueState.turn = myC;
+        //  >> find solution (actions), move is true if we have the ending-rush <<
+
+        //TrueState.updateSelf(actions);
+        //outputActions(actions);
+    }
+
+    static boolean executeTurn() {
+        TrueState.turn += 4;
+        boolean move = false;
+        for(int i = 0; i < 4; i++) {
+            String input = sc.next();
+            if (input.equals("Move")) {
+                move = true;
+                break;
             }
-            for (int x = 1; x < 9; x++) { // get horizontal walls
-                w = input.charAt(i);
-                i++;
-                walls[2*x+1][2*y+1] = w;
-            }
+            if (input.equals("Quit")) return false;
+            TrueState.decodeTurnAndUpdate(input, i);
+        }
+        //  >> find solution (actions), move is true if we have the ending-rush <<
+
+        //TrueState.updateSelf(actions);
+        //outputActions(actions);
+        return true;
+    }
+
+    // output chosen actions and update the TrueState
+    static void outputActions(Point[][] actions) {
+        String res = "";
+        for (int i = 0; i < actions.length; i++) {
+            if (actions[i][0] == null) return;
+            Point a = actions[i][0];
+            Point b = actions[i][1];
+            if (i > 0) res += ':';
+            res += (char)(a.y - 1 + 'a') + (a.x-1) + (char)(b.y - 1 + 'a') + (b.x-1);
         }
     }
 
-    static void perspectifyWalls() {
-
-    }
-
-    static void initiateColors() {
-        String c = sc.next();
-        if (c.equals("Yellow")) myC = 0;
-        else if (c.equals("Black")) myC = 1;
-        else if (c.equals("White")) myC = 2;
-        else myC = 3;
-        frC = (char)((myC+2)%4);
-    }
-
-    static void initialTurn() {
-        initiateWalls();
-        initiateColors();
-
-    }
-
-    static void executeTurn() {
-
-    }
-
     public static void main(String[] args) throws InterruptedException {
-	// write your code here
         sc = new Scanner(System.in);
-    //    initialTurn();
+        initialTurn();
+        while(executeTurn()) {
+            // continue as long as executeTurn() is not false (as long as it doesn't read "Quit")
+        }
 
+        /*
         State init = new State();
         init.pieces = new Point[4];
         init.pieces[0] = new Point(0,0);
@@ -69,6 +73,7 @@ public class Main {
             drawBoard(state);
             Thread.sleep(10);
         }
+        */
     }
 
     static void drawBoard(State state)
