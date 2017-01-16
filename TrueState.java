@@ -14,10 +14,10 @@ public class TrueState {
         turn = 0;
         board = new int[10][10];
         for (int i = 0; i < 10; i ++ ) {
-            board[0][i] = -1;
-            board[i][0] = -1;
-            board[9][i] = -1;
-            board[i][9] = -1;
+            board[0][i] = 4;
+            board[i][0] = 4;
+            board[9][i] = 4;
+            board[i][9] = 4;
         }
         pieces = new Point[4][4];
 
