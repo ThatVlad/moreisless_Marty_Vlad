@@ -54,10 +54,36 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         sc = new Scanner(System.in);
-        initialTurn();
-        while(executeTurn()) {
+        //initialTurn();
+      //  while(executeTurn()) {
             // continue as long as executeTurn() is not false (as long as it doesn't read "Quit")
+       // }
+
+        State init = new State();
+        init.pieces = new Point[4];
+        init.pieces[0] = new Point(7, 7);
+        init.pieces[1] = new Point(1, 0);
+        init.pieces[2] = new Point(0, 1);
+        init.pieces[3] = new Point(1, 1);
+
+        int[] dx = new int[] { 1, 0,0,-1};
+        int[] dy = new int[] { 0,-1,1,0};
+        BruteSolver solver = new BruteSolver();
+        while(true) {
+            long start = System.currentTimeMillis();
+            Move move = solver.solve(init);
+            long dt = System.currentTimeMillis() - start;
+            for(int i = 0; i < move.numMoves; i++) {
+                init.pieces[move.pieceId[i]].x += dx[move.moveId[i]];
+                init.pieces[move.pieceId[i]].y += dy[move.moveId[i]];
+            }
+
+            System.out.println("Move: " + move);
+            System.out.println("X: " + init.pieces[0].x + " Y:" + init.pieces[0].y);
+            drawBoard(init);
+            //  Thread.sleep(100);
         }
+
 
         /*
         State init = new State();

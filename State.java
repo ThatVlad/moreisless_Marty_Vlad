@@ -48,6 +48,9 @@ public class State {
         node = new Node();
         node.state = this;
         firstMoveMade = s.firstMoveMade;
+
+        if(firstMoveMade == null)
+            firstMoveMade = new Move();
     }
 
     boolean isEnd()
@@ -70,7 +73,7 @@ public class State {
     }
 
     //TODO: IMPLEMENT WALLS AND JUMPS
-    ArrayList<State> transitions(boolean first)
+    ArrayList<State> transitions(boolean first, int colorID)
     {
         ArrayList<State> L = new ArrayList<>();
         for(int i = 0; i < 4; i++)
@@ -83,8 +86,8 @@ public class State {
                 AP++;
                 if(AP > 3)
                     newState.time++;
-                if(first)
-                    newState.firstMoveMade = new Move(j,i);
+                if(newState.time == 0)
+                    newState.firstMoveMade.addMove(j,i);
                 L.add((newState));
             }
         }

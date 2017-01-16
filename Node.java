@@ -28,8 +28,9 @@ public class Node implements Comparable<Node> {
     @Override
     public int hashCode() {
         int h_pieces = Arrays.hashCode(state.pieces);
-
-        return Objects.hash(G,fitness, state.AP, state.time, h_pieces, state.firstMoveMade.moveId, state.firstMoveMade.pieceId);
+        int h_moveId = Arrays.hashCode(state.firstMoveMade.moveId);
+        int h_pieceId = Arrays.hashCode(state.firstMoveMade.pieceId);
+        return Objects.hash(G,fitness, state.AP, state.time, h_pieces, h_moveId, h_pieceId);
     }
 
     @Override
@@ -50,9 +51,9 @@ public class Node implements Comparable<Node> {
             return false;
         if (!Arrays.equals(state.pieces, other.state.pieces))
             return false;
-        if (state.firstMoveMade.moveId != other.state.firstMoveMade.moveId)
+        if (!Arrays.equals(state.firstMoveMade.moveId,other.state.firstMoveMade.moveId))
             return false;
-        if (state.firstMoveMade.pieceId != other.state.firstMoveMade.pieceId)
+        if (!Arrays.equals(state.firstMoveMade.pieceId, other.state.firstMoveMade.pieceId))
             return false;
         return true;
     }
