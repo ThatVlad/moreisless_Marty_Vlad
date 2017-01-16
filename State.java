@@ -8,9 +8,11 @@ import java.util.ArrayList;
  */
 public class State {
     Point[] pieces;
-    int[] dx = new int[] { 1, -1, 0,0};
-    int[] dy = new int[] { 0,0,1,-1};
+    int[] dx = new int[] { 1, 0,0,-1};
+    int[] dy = new int[] { 0,-1,1,0};
     int time;
+    int AP; //ability points
+    Move firstMoveMade;
 
     Point[] goal = new Point[] {
             new Point(7,0),         //End goal of yellow
@@ -45,6 +47,7 @@ public class State {
         time = s.time;
         node = new Node();
         node.state = this;
+        firstMoveMade = s.firstMoveMade;
     }
 
     boolean isEnd()
@@ -60,12 +63,14 @@ public class State {
         {
             if(pieces[i].x < 0 || pieces[i].y<0 || pieces[i].x>7 || pieces[i].y>7)
                 return false;
+            if(pieces[i].x == 3 && pieces[i].y !=6)
+                return false;
         }
         return true;
     }
 
     //TODO: IMPLEMENT WALLS AND JUMPS
-    ArrayList<State> transistions()
+    ArrayList<State> transitions(boolean first)
     {
         ArrayList<State> L = new ArrayList<>();
         for(int i = 0; i < 4; i++)
@@ -75,10 +80,31 @@ public class State {
                 Point location = pieces[i];
                 Point newLoc = new Point(location.x+dx[j], location.y+dy[j]);
                 newState.pieces[i].setLocation(newLoc);
-                newState.time++;
+                AP++;
+                if(AP > 3)
+                    newState.time++;
+                if(first)
+                    newState.firstMoveMade = new Move(j,i);
                 L.add((newState));
             }
         }
+
+       /* L = new ArrayList<>();
+        State newState = new State(this); //Clone this state
+        Point location = pieces[0];
+        Point newLoc = new Point(location.x-1, location.y);
+        newState.pieces[0].setLocation(newLoc);
+        if(first)
+            newState.firstMoveMade = new Move(1,0);
+        L.add((newState));
+
+        newState = new State(this); //Clone this state
+        location = pieces[1];
+        newLoc = new Point(location.x+1, location.y);
+        newState.pieces[1].setLocation(newLoc);
+        if(first)
+            newState.firstMoveMade = new Move(0,1);
+        L.add((newState));*/
         return L;
     }
 }

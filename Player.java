@@ -24,15 +24,4 @@ public class Player {
     int id; //Color ID
 
 
-    int fitness()
-    {
-        int result = 0;
-        for(int i = 0; i < 4; i++)
-        {
-            result += Math.abs(goal[id].x - pieces[i].x) + Math.abs(goal[id].y - pieces[i].y);
-        }
-        return result;
-    }
-
-    
 }
