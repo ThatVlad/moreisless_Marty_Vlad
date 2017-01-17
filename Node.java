@@ -8,6 +8,7 @@ import java.util.Objects;
  */
 public class Node implements Comparable<Node> {
     public int G = Integer.MAX_VALUE;
+
     int fitness;
     State state;
 
@@ -30,7 +31,7 @@ public class Node implements Comparable<Node> {
         int h_pieces = Arrays.hashCode(state.pieces);
         int h_moveId = Arrays.hashCode(state.firstMoveMade.moveId);
         int h_pieceId = Arrays.hashCode(state.firstMoveMade.pieceId);
-        return Objects.hash(G,fitness, state.AP, state.time, h_pieces, h_moveId, h_pieceId);
+        return Objects.hash(G,fitness, state.AP, h_pieces, h_moveId, h_pieceId);
     }
 
     @Override
@@ -47,9 +48,9 @@ public class Node implements Comparable<Node> {
             return false;
         if(state.AP != other.state.AP)
             return false;
-        if (state.time != other.state.time)
+        if(state.time != other.state.time)
             return false;
-        if (!Arrays.equals(state.pieces, other.state.pieces))
+        if (!Arrays.deepEquals(state.pieces, other.state.pieces))
             return false;
         if (!Arrays.equals(state.firstMoveMade.moveId,other.state.firstMoveMade.moveId))
             return false;
