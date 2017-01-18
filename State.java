@@ -19,6 +19,8 @@ public class State {
     int AP; //ability points
     Move firstMoveMade;
 
+    Point moveNewLoc;
+
     Point[] goal = new Point[] {
             new Point(8,1),         //End goal of yellow
             new Point(8,8),         //End goal of black
@@ -103,9 +105,10 @@ public class State {
         ArrayList<State> L = new ArrayList<>();
 
         ArrayList<Integer> order = swap();
+        ArrayList<Integer> order2 = swap();
         for(int i2= 0; i2 < 4; i2++)
         {
-            int i = order.get(i2);
+            int i = i2;
             for(int j2 = 0; j2 < 4; j2++) {
                 int j = j2;
                 State newState = new State(this); //Clone this state
@@ -137,12 +140,10 @@ public class State {
                     newState.AP=0;
                 }
                 if(newState.time == 0) {
-                    if(newState.firstMoveMade.numMoves == 3)
-                    {
-                        int ab12c =123;
-                    }
                     newState.firstMoveMade.addMove(j, i);
                 }
+
+               // newState.moveNewLoc = location;
                 L.add((newState));
             }
         }

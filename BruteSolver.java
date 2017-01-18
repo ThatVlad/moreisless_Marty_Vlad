@@ -29,15 +29,20 @@ public class BruteSolver {
         while(!open.isEmpty()) {
             current = open.poll();
 
+        //    drawBoard(current.state);
           /*  if (current.state.pieces[Colors.myC][0].x == 8 && current.state.pieces[Colors.myC][0].y == 8)
                 if (current.state.pieces[Colors.myC][1].x == 8 && current.state.pieces[Colors.myC][1].y == 8)
                     if (current.state.pieces[Colors.myC][2].x == 8 && current.state.pieces[Colors.myC][2].y == 8)
                         if (current.state.pieces[Colors.myC][3].x == 8 && current.state.pieces[Colors.myC][3].y == 8)
                             break;*/
             if(current.H() == 0) break;
-           // if(current.H() < 2) break; //TESTING
+
             if (closed.contains(current))
                 continue;
+            if(closed.size() > 90000000)
+            {
+                int abc= 1231;
+            }
             closed.add(current);
             for (State target : current.state.transitions(firstMove, Colors.myC)) {
             //    if (!target.isValid()) continue;
@@ -60,5 +65,28 @@ public class BruteSolver {
         }
         System.out.println("Wut..");
         return new Move();
+    }
+
+    static void drawBoard(State state)
+    {
+        System.out.flush();
+        char[][] board = new char[10][10];
+        for(int i= 0; i <4; i++)
+            board[state.pieces[Colors.myC][i].x][state.pieces[Colors.myC][i].y] = 'O';
+
+        System.out.println("===============");
+        for(int y = 0; y < 10; y++)
+        {
+            for(int x = 0; x < 10; x++)
+            {
+                if(board[x][y] == '\u0000')
+                    board[x][y] = ' ';
+                if(state.moveNewLoc != null && x == state.moveNewLoc.x && y == state.moveNewLoc.y)
+                    board[x][y]= 'X';
+                System.out.print(board[x][y]);
+            }
+            System.out.println();
+        }
+        System.out.println("===============");
     }
 }

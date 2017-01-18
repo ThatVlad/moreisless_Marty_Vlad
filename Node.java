@@ -28,10 +28,11 @@ public class Node implements Comparable<Node> {
 
     @Override
     public int hashCode() {
-        int h_pieces = Arrays.hashCode(state.pieces);
+        //Optimize? https://en.wikipedia.org/wiki/Zobrist_hashing
+        int h_pieces = Arrays.deepHashCode(state.pieces);
         int h_moveId = Arrays.hashCode(state.firstMoveMade.moveId);
         int h_pieceId = Arrays.hashCode(state.firstMoveMade.pieceId);
-        return Objects.hash(G,fitness, state.AP, h_pieces, h_moveId, h_pieceId);
+        return Objects.hash(/*G,fitness, state.AP,*/ h_pieces/*, h_moveId, h_pieceId*/);
     }
 
     @Override
@@ -42,20 +43,20 @@ public class Node implements Comparable<Node> {
             return false;
         }
         Node other = (Node) o;
-        if (G != other.G)
-            return false;
-        if (fitness != other.fitness)
-            return false;
-        if(state.AP != other.state.AP)
-            return false;
-        if(state.time != other.state.time)
-            return false;
+        //if (G != other.G)
+        //    return false;
+        //if (fitness != other.fitness)
+        //    return false;
+        //if(state.AP != other.state.AP)
+        //    return false;
+        //if(state.time != other.state.time)
+        //    return false;
         if (!Arrays.deepEquals(state.pieces, other.state.pieces))
             return false;
-        if (!Arrays.equals(state.firstMoveMade.moveId,other.state.firstMoveMade.moveId))
-            return false;
-        if (!Arrays.equals(state.firstMoveMade.pieceId, other.state.firstMoveMade.pieceId))
-            return false;
+       //if (!Arrays.equals(state.firstMoveMade.moveId,other.state.firstMoveMade.moveId))
+       //     return false;
+       // if (!Arrays.equals(state.firstMoveMade.pieceId, other.state.firstMoveMade.pieceId))
+       //     return false;
         return true;
     }
 }

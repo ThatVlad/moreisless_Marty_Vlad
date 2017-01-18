@@ -2,6 +2,7 @@ package moreisless_Marty_Vlad;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Scanner;
 
 import static moreisless_Marty_Vlad.Colors.myC;
@@ -49,12 +50,27 @@ public class Main {
        // }
         String walls = "0000100000000000000100000000000000100000000000000000000000000000100000000000000100000000000000100000000000000100";
         Walls.initiateWalls(null, walls);
-        int[][] testA = new int[][] { {1,2,3}, {1,2,3}, {1,2,3}};
-        int[][] testB = new int[][] { {1,2,3}, {1,2,3}, {1,2,3}};
-        int[] a = new int[] { 1,2,3,4,5,6};
-        int[] b= new int[] { 1,2,3,4,5,6};
-        boolean ans = Arrays.deepEquals(testA, testB);
-        boolean ans2 = Arrays.equals(a,b);
+
+        HashSet<Node> nodes = new HashSet<>();
+        State testA= new State();
+        testA.pieces = new Point[4][4];
+        testA.pieces[0][1] = new Point(3,3);
+        testA.pieces[0][2]= new Point(3,3);
+        testA.pieces[0][3]= new Point(9,6);
+        testA.pieces[0][0] = new Point(10,3);
+
+        State testB= new State();
+        testB.pieces = new Point[4][4];
+        testB.pieces[0][1]= new Point(3,3);
+        testB.pieces[0][2]= new Point(3,3);
+        testB.pieces[0][3]= new Point(9,6);
+        testB.pieces[0][0] = new Point(10,3);
+        nodes.add(testA.node);
+
+        if(nodes.contains(testB.node))
+        {
+            int abc=13;
+        }
         Colors.myC = 0;
         State init = new State();
         init.pieces = new Point[4][4];
@@ -71,14 +87,18 @@ public class Main {
             long start = System.currentTimeMillis();
             Move move = solver.solve(init);
             long dt = System.currentTimeMillis() - start;
+            Point[] oldLocs = new Point[4];
             for(int i = 0; i < move.numMoves; i++) {
+                int piece = move.pieceId[i];
+                if (oldLocs[piece] == null)
+                    oldLocs[piece] = new Point(init.pieces[Colors.myC][piece].x, init.pieces[Colors.myC][piece].y);
                 init.pieces[Colors.myC][move.pieceId[i]].x += dx[move.moveId[i]];
                 init.pieces[Colors.myC][move.pieceId[i]].y += dy[move.moveId[i]];
             }
 
-            System.out.println("Move: " + move);
+            System.out.println("Time taken (ms): " + dt);
           //  System.out.println("X: " + init.pieces[0].x + " Y:" + init.pieces[0].y);
-            drawBoard(init);
+            drawBoard(init, oldLocs);
             //  Thread.sleep(100);
         }
 
@@ -100,19 +120,23 @@ public class Main {
         */
     }
 
-    static void drawBoard(State state)
+    static void drawBoard(State state, Point oldLocs[])
     {
         System.out.flush();
         char[][] board = new char[10][10];
-        for(int i= 0; i <4; i++)
+        for(int i= 0; i <4; i++) {
+            if (oldLocs[i] != null)
+                board[oldLocs[i].x][oldLocs[i].y] = 'X';
             board[state.pieces[Colors.myC][i].x][state.pieces[Colors.myC][i].y] = 'O';
+        }
 
         for(int y = 0; y < 10; y++)
         {
             for(int x = 0; x < 10; x++)
             {
                 if(board[x][y] == '\u0000')
-                    board[x][y] = '1';
+                    board[x][y] = '-';
+                if(x ==6) System.out.print(y==4? '-' : '|');
                 System.out.print(board[x][y]);
             }
             System.out.println();
