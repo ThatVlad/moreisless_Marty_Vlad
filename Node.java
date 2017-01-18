@@ -9,14 +9,14 @@ import java.util.Objects;
 public class Node implements Comparable<Node> {
     public int G = Integer.MAX_VALUE;
 
-    int fitness;
+    double fitness;
     State state;
 
-    int H() {
+    double H() {
         return fitness;
     }
 
-    public int F()
+    public double F()
     {
         return H() + G;
     }

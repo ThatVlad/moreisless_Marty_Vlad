@@ -92,6 +92,7 @@ public class Main {
                 int piece = move.pieceId[i];
                 if (oldLocs[piece] == null)
                     oldLocs[piece] = new Point(init.pieces[Colors.myC][piece].x, init.pieces[Colors.myC][piece].y);
+                int a = Colors.myC;
                 init.pieces[Colors.myC][move.pieceId[i]].x += dx[move.moveId[i]];
                 init.pieces[Colors.myC][move.pieceId[i]].y += dy[move.moveId[i]];
             }
@@ -100,6 +101,7 @@ public class Main {
           //  System.out.println("X: " + init.pieces[0].x + " Y:" + init.pieces[0].y);
             drawBoard(init, oldLocs);
             //  Thread.sleep(100);
+            int abc=123;
         }
 
 
@@ -127,7 +129,7 @@ public class Main {
         for(int i= 0; i <4; i++) {
             if (oldLocs[i] != null)
                 board[oldLocs[i].x][oldLocs[i].y] = 'X';
-            board[state.pieces[Colors.myC][i].x][state.pieces[Colors.myC][i].y] = 'O';
+            board[state.pieces[Colors.myC][i].x][state.pieces[Colors.myC][i].y] = (char)(i + '0');
         }
 
         for(int y = 0; y < 10; y++)

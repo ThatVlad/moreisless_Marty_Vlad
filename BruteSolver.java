@@ -35,7 +35,7 @@ public class BruteSolver {
                     if (current.state.pieces[Colors.myC][2].x == 8 && current.state.pieces[Colors.myC][2].y == 8)
                         if (current.state.pieces[Colors.myC][3].x == 8 && current.state.pieces[Colors.myC][3].y == 8)
                             break;*/
-            if(current.H() == 0) break;
+            if(current.H() < 1/100.0) break;
 
             if (closed.contains(current))
                 continue;
@@ -49,9 +49,11 @@ public class BruteSolver {
                 double currF = current.G;
                 double tarF = target.node.G;
                 //  if (current.G + 1 < target.node.G) { //TODO: maybe this breaks stuff? idk
+                if(closed.contains(target.node))
+                    continue;; //TODO:maybe this breaks stuff? idk
                 target.node.G = target.time;
-                int tar = target.fitness();
-                int cur = current.state.fitness();
+                double tar = target.fitness();
+                double cur = current.state.fitness();
                 target.node.fitness = target.fitness();
                 open.add(target.node);
                 //   }

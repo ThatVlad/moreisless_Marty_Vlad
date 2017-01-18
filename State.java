@@ -38,7 +38,7 @@ public class State {
         firstMoveMade = new Move();
     }
 
-    int fitness()
+    double fitness()
     {
         int result = 0;
         for(int i = 0; i < 4; i++)
@@ -54,7 +54,7 @@ public class State {
             }
             result += min;
         }
-        return result;
+        return result/3.4;
     }
 
     //Clone constructor
@@ -108,9 +108,9 @@ public class State {
         ArrayList<Integer> order2 = swap();
         for(int i2= 0; i2 < 4; i2++)
         {
-            int i = i2;
+            int i = order.get(i2);
             for(int j2 = 0; j2 < 4; j2++) {
-                int j = j2;
+                int j = order.get(j2);
                 State newState = new State(this); //Clone this state
                 Point location = pieces[Colors.myC][i];
                 Point newLoc = new Point(location.x+dx[j], location.y+dy[j]);
