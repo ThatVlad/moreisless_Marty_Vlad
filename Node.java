@@ -14,7 +14,7 @@ public class Node implements Comparable<Node> {
 
     double fitness;
     State state;
-    int hashCode;
+    public int hashCode;
 
     double H() {
         return fitness;

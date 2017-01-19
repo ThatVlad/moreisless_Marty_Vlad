@@ -54,9 +54,8 @@ public class State {
             }
             result += min;
         }
-        return result;
+        return result/2.0;
     }
-
     //Clone constructor
     public State(State s)
     {
