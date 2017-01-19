@@ -12,12 +12,15 @@ public class Node implements Comparable<Node> {
 
     public int G = Integer.MAX_VALUE;
 
+    double fitness;
     State state;
     int hashCode;
 
+    double H() {
         return fitness;
     }
 
+    public double F()
     {
         return H() + G;
     }
