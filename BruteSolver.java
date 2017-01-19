@@ -29,13 +29,13 @@ public class BruteSolver {
         while(!open.isEmpty()) {
             current = open.poll();
 
-        //    drawBoard(current.state);
+           // drawBoard2(current.state);
           /*  if (current.state.pieces[Colors.myC][0].x == 8 && current.state.pieces[Colors.myC][0].y == 8)
                 if (current.state.pieces[Colors.myC][1].x == 8 && current.state.pieces[Colors.myC][1].y == 8)
                     if (current.state.pieces[Colors.myC][2].x == 8 && current.state.pieces[Colors.myC][2].y == 8)
                         if (current.state.pieces[Colors.myC][3].x == 8 && current.state.pieces[Colors.myC][3].y == 8)
                             break;*/
-            if(current.H() == 0) break;
+            if(current.H() < 1/100.0) break;
 
             if (closed.contains(current))
                 continue;
@@ -49,9 +49,11 @@ public class BruteSolver {
                 double currF = current.G;
                 double tarF = target.node.G;
                 //  if (current.G + 1 < target.node.G) { //TODO: maybe this breaks stuff? idk
-                target.node.G = target.time;
-                int tar = target.fitness();
-                int cur = current.state.fitness();
+                if(closed.contains(target.node))
+                    continue;; //TODO:maybe this breaks stuff? idk
+                target.node.G = target.AP;
+                double tar = target.fitness();
+                double cur = current.state.fitness();
                 target.node.fitness = target.fitness();
                 open.add(target.node);
                 //   }
@@ -88,5 +90,26 @@ public class BruteSolver {
             System.out.println();
         }
         System.out.println("===============");
+    }
+
+    static void drawBoard2(State state)
+    {
+        System.out.flush();
+        char[][] board = new char[10][10];
+        for(int i= 0; i <4; i++) {
+            board[state.pieces[Colors.myC][i].x][state.pieces[Colors.myC][i].y] = (char)(i + '0');
+        }
+
+        for(int y = 0; y < 10; y++)
+        {
+            for(int x = 0; x < 10; x++)
+            {
+                if(board[x][y] == '\u0000')
+                    board[x][y] = '-';
+                if(x ==6) System.out.print(y==4? '-' : '|');
+                System.out.print(board[x][y]);
+            }
+            System.out.println();
+        }
     }
 }

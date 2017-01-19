@@ -38,7 +38,7 @@ public class State {
         firstMoveMade = new Move();
     }
 
-    int fitness()
+    double fitness()
     {
         int result = 0;
         for(int i = 0; i < 4; i++)
@@ -75,25 +75,6 @@ public class State {
         firstMoveMade.numMoves = s.firstMoveMade.numMoves;
     }
 
-    boolean isEnd()
-    {
-        if(pieces[Colors.myC][0].x == 8 && pieces[Colors.myC][0].y == 8)
-            return true;
-        return false;
-    }
-
-    boolean isValid()
-    {
-        for(int i = 0; i < 4; i++)
-        {
-            if(pieces[Colors.myC][i].x < 0 || pieces[Colors.myC][i].y<0 || pieces[Colors.myC][i].x>7 || pieces[Colors.myC][i].y>7)
-                return false;
-            if(pieces[Colors.myC][i].x == 3 && pieces[Colors.myC][i].y !=6)
-                return false;
-        }
-        return true;
-    }
-
     //TODO: IMPLEMENT WALLS AND JUMPS
     ArrayList<State> transitions(boolean first, int colorID)
     {
@@ -101,43 +82,32 @@ public class State {
         for(int j = 0; j < 1; j++)
             for(int i = 0; i < 4; i++)
                 board[pieces[j][i].x][pieces[j][i].y] = i+j*4+10;
-       // board[8][8] = 0;
         ArrayList<State> L = new ArrayList<>();
 
         ArrayList<Integer> order = swap();
         ArrayList<Integer> order2 = swap();
+
+        //Do one step
         for(int i2= 0; i2 < 4; i2++)
         {
-            int i = i2;
+            int i = order.get(i2);
             for(int j2 = 0; j2 < 4; j2++) {
-                int j = j2;
+                int j = order.get(j2);
                 State newState = new State(this); //Clone this state
                 Point location = pieces[Colors.myC][i];
                 Point newLoc = new Point(location.x+dx[j], location.y+dy[j]);
-                if(newLoc.x < 0 || newLoc.y < 0)
-                {
-                    int abc =123;
-                }
+
                 if(board[newLoc.x][newLoc.y] >0)
                     continue;
-                Point a = this.pieces[Colors.myC][i];
-                Point b =newLoc;
-                int abc = Walls.getWall(this.pieces[Colors.myC][i], newLoc);
-                if(abc != 0)
-                {
-                    int adf=123;
-                }
-                if(a.x == 5 && b.x==6 &&abc == 0)
-                {
-                    int dfadf = 123;
-                }
+
                 if(Walls.getWall(this.pieces[Colors.myC][i], newLoc) > 0)
                     continue;
                 newState.pieces[Colors.myC][i].setLocation(newLoc);
                 newState.AP++;
                 if(newState.AP > 3) {
                     newState.time++;
-                    newState.AP=0;
+                   // newState.AP=0;
+
                 }
                 if(newState.time == 0) {
                     newState.firstMoveMade.addMove(j, i);
@@ -148,22 +118,36 @@ public class State {
             }
         }
 
-       /* L = new ArrayList<>();
-        State newState = new State(this); //Clone this state
-        Point location = pieces[0];
-        Point newLoc = new Point(location.x-1, location.y);
-        newState.pieces[0].setLocation(newLoc);
-        if(first)
-            newState.firstMoveMade = new Move(1,0);
-        L.add((newState));
+        /*//Check for jumps
+        //TODO: OPTIMIZE THIS
+        for(int i2= 0; i2 < 4; i2++) {
+            int i = order.get(i2);
+            for (int j2 = 0; j2 < 4; j2++) {
+                int j = order.get(j2);
+                State newState = new State(this); //Clone this state
+                Point location = pieces[Colors.myC][i];
+                Point friendlyPos = new Point(location.x+dx[j], location.y+dy[j]);
+                Point newPos = new Point(location.x+dx[j]*2, location.y+dy[j]*2);
+                if(!(board[friendlyPos.x][friendlyPos.y] >= 10 + 4*Colors.myC && board[friendlyPos.x][friendlyPos.y] < 4+4*Colors.myC+10))
+                    continue; //There is no piece to jump over
 
-        newState = new State(this); //Clone this state
-        location = pieces[1];
-        newLoc = new Point(location.x+1, location.y);
-        newState.pieces[1].setLocation(newLoc);
-        if(first)
-            newState.firstMoveMade = new Move(0,1);
-        L.add((newState));*/
+                if(Walls.getWall(friendlyPos, newPos) > 0)
+                    continue;
+
+                newState.pieces[Colors.myC][i].setLocation(newPos);
+                newState.AP++;
+                if(newState.AP > 3) {
+                    newState.time++;
+                }
+                if(newState.time == 0) {
+                    newState.firstMoveMade.addMove(4 + j, i);
+                }
+
+                // newState.moveNewLoc = location;
+                L.add((newState));
+            }
+        }*/
+
         return L;
     }
 

@@ -61,7 +61,7 @@ public class Main {
 
         State testB= new State();
         testB.pieces = new Point[4][4];
-        testB.pieces[0][1]= new Point(3,3);
+        testB.pieces[0][1]= new Point(5,3);
         testB.pieces[0][2]= new Point(3,3);
         testB.pieces[0][3]= new Point(9,6);
         testB.pieces[0][0] = new Point(10,3);
@@ -72,37 +72,44 @@ public class Main {
             int abc=13;
         }
         Colors.myC = 0;
-        State init = new State();
-        init.pieces = new Point[4][4];
-        init.pieces[Colors.myC] = new Point[4];
-        init.pieces[Colors.myC][0] = new Point(8, 8);
-        init.pieces[Colors.myC][1] = new Point(2, 1);
-        init.pieces[Colors.myC][2] = new Point(1, 2);
-        init.pieces[Colors.myC][3] = new Point(2, 2);
-
-        int[] dx = new int[] { 1, 0,0,-1};
-        int[] dy = new int[] { 0,-1,1,0};
-        BruteSolver solver = new BruteSolver();
         while(true) {
-            long start = System.currentTimeMillis();
-            Move move = solver.solve(init);
-            long dt = System.currentTimeMillis() - start;
-            Point[] oldLocs = new Point[4];
-            for(int i = 0; i < move.numMoves; i++) {
-                int piece = move.pieceId[i];
-                if (oldLocs[piece] == null)
-                    oldLocs[piece] = new Point(init.pieces[Colors.myC][piece].x, init.pieces[Colors.myC][piece].y);
-                init.pieces[Colors.myC][move.pieceId[i]].x += dx[move.moveId[i]];
-                init.pieces[Colors.myC][move.pieceId[i]].y += dy[move.moveId[i]];
+            State init = new State();
+            init.pieces = new Point[4][4];
+            init.pieces[Colors.myC] = new Point[4];
+            init.pieces[Colors.myC][0] = new Point(8, 8);
+            init.pieces[Colors.myC][1] = new Point(2, 1);
+            init.pieces[Colors.myC][2] = new Point(1, 2);
+            init.pieces[Colors.myC][3] = new Point(2, 2);
+
+            int[] dx = new int[]{1, 0, 0, -1};
+            int[] dy = new int[]{0, -1, 1, 0};
+            BruteSolver solver = new BruteSolver();
+            int numJumps = 0;
+            while (init.fitness() != 0) {
+                long start = System.currentTimeMillis();
+                Move move = solver.solve(init);
+                long dt = System.currentTimeMillis() - start;
+                Point[] oldLocs = new Point[4];
+                for (int i = 0; i < move.numMoves; i++) {
+                    int piece = move.pieceId[i];
+                    if (oldLocs[piece] == null)
+                        oldLocs[piece] = new Point(init.pieces[Colors.myC][piece].x, init.pieces[Colors.myC][piece].y);
+                    int a = Colors.myC;
+                    int steps = move.moveId[i] > 4 ? 2 : 1;
+                    numJumps += steps-1;
+                    init.pieces[Colors.myC][move.pieceId[i]].x += dx[move.moveId[i]%4]*steps;
+                    init.pieces[Colors.myC][move.pieceId[i]].y += dy[move.moveId[i]%4]*steps;
+                }
+
+                System.out.println("Time taken (ms): " + dt);
+                System.out.println("TotalJumps: " + numJumps);
+                //  System.out.println("X: " + init.pieces[0].x + " Y:" + init.pieces[0].y);
+                drawBoard(init, oldLocs);
+                //  Thread.sleep(100);
+                int abc = 123;
             }
 
-            System.out.println("Time taken (ms): " + dt);
-          //  System.out.println("X: " + init.pieces[0].x + " Y:" + init.pieces[0].y);
-            drawBoard(init, oldLocs);
-            //  Thread.sleep(100);
         }
-
-
         /*
         State init = new State();
         init.pieces = new Point[4];
@@ -127,7 +134,7 @@ public class Main {
         for(int i= 0; i <4; i++) {
             if (oldLocs[i] != null)
                 board[oldLocs[i].x][oldLocs[i].y] = 'X';
-            board[state.pieces[Colors.myC][i].x][state.pieces[Colors.myC][i].y] = 'O';
+            board[state.pieces[Colors.myC][i].x][state.pieces[Colors.myC][i].y] = (char)(i + '0');
         }
 
         for(int y = 0; y < 10; y++)

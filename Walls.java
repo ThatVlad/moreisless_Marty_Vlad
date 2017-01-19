@@ -42,16 +42,8 @@ public class Walls {
         int bx = b.x - 1;
         int by = b.y - 1;
 
-        int test = (walls[ax+bx][ay+by]);
-        if(test == 0)
-        {
-            int abc =123;
-        }
-        if(test == 1)
-        {
-            int bcd=231;
-        }
-        if (ax < 0 || ay < 0 || bx > 7 || by > 7) return 512;
+        if (ax > 7 || ay > 7 || ax < 0 || ay < 0) return 512;
+        if(bx > 7 || by > 7 || by < 0 || bx < 0) return 512;
         else if (Math.abs(ax-bx) + Math.abs(ay-by) != 1) return 512;
         else return (walls[ax+bx][ay+by]);
     }
