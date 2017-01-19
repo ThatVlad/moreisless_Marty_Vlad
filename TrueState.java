@@ -14,6 +14,7 @@ public class TrueState {
         turn = 0;
         board = new int[10][10];
         for (int i = 0; i < 10; i ++ ) {
+            // build walls around board
             board[0][i] = 4;
             board[i][0] = 4;
             board[9][i] = 4;
@@ -31,7 +32,7 @@ public class TrueState {
                 int x = xori[i]+xoff[j];
                 int y = yori[i]+yoff[j];
                 pieces[i][j] = new Point(x,y);
-                board[x][y] = i;
+                board[x][y] = i+10;
             }
         }
     }
@@ -46,7 +47,7 @@ public class TrueState {
             Point b = new Point(input.charAt(3+m*5)-'0'+1,input.charAt(2+m*5)-'a'+1);
             // update board and player pieces lists
             board[a.x][a.y] = 0;
-            board[b.x][b.y] = c;
+            board[b.x][b.y] = c+10;
             for (int i = 0; i < 4; i++) {
                 if (pieces[c][i].x == a.x && pieces[c][i].y == a.y) {
                     pieces[c][i].x = b.x;
