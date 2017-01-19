@@ -54,15 +54,15 @@ public class State {
             }
             result += min;
         }
-        return result/2.0;
+        return result;
     }
     //Clone constructor
-    public State(State s)
+    public State(State s, int prevHashCode, int color, Point start, Point end)
     {
         pieces = new Point[4][4];
         for(int i = 0; i < 4; i++) pieces[Colors.myC][i] = new Point(s.pieces[Colors.myC][i].x, s.pieces[Colors.myC][i].y);
         time = s.time;
-        node = new Node();
+        node = new Node(prevHashCode, color, start, end);
         node.state = this;
         firstMoveMade = new Move();
         this.AP = s.AP;
@@ -92,7 +92,7 @@ public class State {
             int i = order.get(i2);
             for(int j2 = 0; j2 < 4; j2++) {
                 int j = order.get(j2);
-                State newState = new State(this); //Clone this state
+
                 Point location = pieces[Colors.myC][i];
                 Point newLoc = new Point(location.x+dx[j], location.y+dy[j]);
 
@@ -101,6 +101,7 @@ public class State {
 
                 if(Walls.getWall(this.pieces[Colors.myC][i], newLoc) > 0)
                     continue;
+                State newState = new State(this, node.hashCode, Colors.myC, location, newLoc); //Clone this state
                 newState.pieces[Colors.myC][i].setLocation(newLoc);
                 newState.AP++;
                 if(newState.AP > 3) {

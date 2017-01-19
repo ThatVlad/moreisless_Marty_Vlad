@@ -55,7 +55,7 @@ public class BruteSolver {
                 target.node.G = target.AP;
                 target.node.fitness = target.fitness();
                 open.add(target.node);
-                target.node.buildHashCode();
+                //target.node.buildHashCode();
                 //   }
             }
             firstMove = false;
