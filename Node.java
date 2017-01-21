@@ -49,7 +49,7 @@ public class Node implements Comparable<Node> {
     // builds HashCode from assigned "State"-object
     public void buildHashCode () {
         int posCode;
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 1; i++) { // TODO: GENERALIZE FOR MULTIPLE PLAYERS
             for (int j = 0; j < 4; j++) {
                 posCode = hashTable[state.pieces[i][j].x][state.pieces[i][j].y][i];
                 hashCode = hashCode ^ posCode;
@@ -60,41 +60,5 @@ public class Node implements Comparable<Node> {
     @Override
     public int compareTo(Node o) {
         return F() > o.F() ? 1 : (F() < o.F() ? -1 : 0);
-    }
-
-    @Override
-    public int hashCode() {
-
-        //Optimize? https://en.wikipedia.org/wiki/Zobrist_hashing
-        int h_pieces = Arrays.deepHashCode(state.pieces);
-        int h_moveId = Arrays.hashCode(state.firstMoveMade.moveId);
-        int h_pieceId = Arrays.hashCode(state.firstMoveMade.pieceId);
-
-        return Objects.hash(/*G,fitness, state.AP,*/ h_pieces/*, h_moveId, h_pieceId*/);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-
-        if (o == this) return true;
-        if (!(o instanceof Node)) {
-            return false;
-        }
-        Node other = (Node) o;
-        //if (G != other.G)
-        //    return false;
-        //if (fitness != other.fitness)
-        //    return false;
-        //if(state.AP != other.state.AP)
-        //    return false;
-        //if(state.time != other.state.time)
-        //    return false;
-        if (!Arrays.deepEquals(state.pieces, other.state.pieces))
-            return false;
-       //if (!Arrays.equals(state.firstMoveMade.moveId,other.state.firstMoveMade.moveId))
-       //     return false;
-       // if (!Arrays.equals(state.firstMoveMade.pieceId, other.state.firstMoveMade.pieceId))
-       //     return false;
-        return true;
     }
 }

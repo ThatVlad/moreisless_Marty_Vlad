@@ -51,91 +51,53 @@ public class Main {
         String walls = "0000100000000000000100000000000000100000000000000000000000000000100000000000000100000000000000100000000000000100";
         Walls.initiateWalls(null, walls);
 
-        HashSet<Node> nodes = new HashSet<>();
-        State testA= new State();
-        testA.pieces = new Point[4][4];
-        testA.pieces[0][1] = new Point(3,3);
-        testA.pieces[0][2]= new Point(3,3);
-        testA.pieces[0][3]= new Point(9,6);
-        testA.pieces[0][0] = new Point(10,3);
-
-        State testB= new State();
-        testB.pieces = new Point[4][4];
-        testB.pieces[0][1]= new Point(5,3);
-        testB.pieces[0][2]= new Point(3,3);
-        testB.pieces[0][3]= new Point(9,6);
-        testB.pieces[0][0] = new Point(10,3);
-        nodes.add(testA.node);
-
-        if(nodes.contains(testB.node))
-        {
-            int abc=13;
-        }
         Colors.myC = 0;
         while(true) {
             State init = new State();
             init.pieces = new Point[4][4];
             init.pieces[Colors.myC] = new Point[4];
-            init.pieces[Colors.myC][0] = new Point(8, 8);
+            init.pieces[Colors.myC][0] = new Point(2, 1);
             init.pieces[Colors.myC][1] = new Point(2, 1);
             init.pieces[Colors.myC][2] = new Point(1, 2);
             init.pieces[Colors.myC][3] = new Point(2, 2);
 
-            int[] dx = new int[]{1, 0, 0, -1};
-            int[] dy = new int[]{0, -1, 1, 0};
             BruteSolver solver = new BruteSolver();
             int numJumps = 0;
             while (init.fitness() != 0) {
                 long start = System.currentTimeMillis();
                 Move move = solver.solve(init);
                 long dt = System.currentTimeMillis() - start;
-                Point[] oldLocs = new Point[4];
+                Point oldLoc;
                 for (int i = 0; i < move.numMoves; i++) {
                     int piece = move.pieceId[i];
-                    if (oldLocs[piece] == null)
-                        oldLocs[piece] = new Point(init.pieces[Colors.myC][piece].x, init.pieces[Colors.myC][piece].y);
-                    int a = Colors.myC;
-                    int steps = move.moveId[i] > 4 ? 2 : 1;
+                    oldLoc= new Point(init.pieces[Colors.myC][piece].x, init.pieces[Colors.myC][piece].y);
+                    int steps = move.moveId[i] >= 4 ? 2 : 1;
                     numJumps += steps-1;
-                    init.pieces[Colors.myC][move.pieceId[i]].x += dx[move.moveId[i]%4]*steps;
-                    init.pieces[Colors.myC][move.pieceId[i]].y += dy[move.moveId[i]%4]*steps;
+                    init.pieces[Colors.myC][move.pieceId[i]].x += Util.dx[move.moveId[i]%4]*steps;
+                    init.pieces[Colors.myC][move.pieceId[i]].y += Util.dy[move.moveId[i]%4]*steps;
+                    drawBoard(init, oldLoc);
+                    int BREAKPOINT = 123;
                 }
 
-                System.out.println("Time taken (ms): " + dt);
-                System.out.println("TotalJumps: " + numJumps);
+              //  System.out.println("Time taken (ms): " + dt);
+             //   System.out.println("TotalJumps: " + numJumps);
                 //  System.out.println("X: " + init.pieces[0].x + " Y:" + init.pieces[0].y);
-                drawBoard(init, oldLocs);
+             //   drawBoard(init, new Point(0,0));
                 //  Thread.sleep(100);
                 int abc = 123;
             }
 
         }
-        /*
-        State init = new State();
-        init.pieces = new Point[4];
-        init.pieces[0] = new Point(0,0);
-        init.pieces[1] = new Point(1,0);
-        init.pieces[2] = new Point(0,1);
-        init.pieces[3] = new Point(1,1);
-
-        BruteSolver solver = new BruteSolver();
-        State[] actions =  solver.solve(init);
-        for(State state : actions) {
-            drawBoard(state);
-            Thread.sleep(10);
-        }
-        */
     }
 
-    static void drawBoard(State state, Point oldLocs[])
+    static void drawBoard(State state, Point oldLoc)
     {
         System.out.flush();
         char[][] board = new char[10][10];
         for(int i= 0; i <4; i++) {
-            if (oldLocs[i] != null)
-                board[oldLocs[i].x][oldLocs[i].y] = 'X';
             board[state.pieces[Colors.myC][i].x][state.pieces[Colors.myC][i].y] = (char)(i + '0');
         }
+        board[oldLoc.x][oldLoc.y] = 'X';
 
         for(int y = 0; y < 10; y++)
         {

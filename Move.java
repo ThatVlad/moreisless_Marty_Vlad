@@ -29,8 +29,6 @@ public class Move {
 
     String getMoveString () {
         // first deep copy pieces and board before proceeding to string computation
-        int[] dx = new int[] { 1, 0,0,-1};
-        int[] dy = new int[] { 0,-1,1,0};
         Point[][] pieces = new Point[4][4];
         for (int i = 0; i < 4;  i++) {
             for (int j = 0; j < 4; j++) {
@@ -50,10 +48,10 @@ public class Move {
             if (i > 0) res += ':'; // piece-moving is seperated by :
             Point a = pieces[Colors.myC][pieceId[i]]; // start node
             res += (char)(a.y - 1 + 'a') + (a.x-1); // add starting position to string
-            Point b = new Point (a.x + dx[moveId[i]], a.y+dy[moveId[i]]);
+            Point b = new Point (a.x + Util.dx[moveId[i]], a.y+Util.dy[moveId[i]]);
             if (board[b.x][b.y] > 1) {
-                b.x+=dx[moveId[i]];
-                b.y+=dy[moveId[i]];
+                b.x+=Util.dx[moveId[i]];
+                b.y+=Util.dy[moveId[i]];
             }
             board[a.x][a.y] = 0;
             board[b.x][b.y] = Colors.myC;
