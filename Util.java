@@ -24,4 +24,25 @@ public class Util {
             new Point(0,0),         //End goal of white
             new Point(0,7),         //End goal of red
     };
+
+    static int readX(int bitstring, int piece)
+    {
+        return (bitstring>>>4*2*piece)&15;
+    }
+    static int readY(int bitstring, int piece)
+    {
+        return (bitstring>>>4*2*piece+4)&15;
+    }
+    static Point readPoint(int bitstring, int piece)
+    {
+        return new Point(readX(bitstring,piece), readY(bitstring,piece));
+    }
+    static int updateXY(int bitstring, int piece, int x, int y)
+    {
+        int mask = 255 << piece*2*4;
+        int res = (bitstring & ~mask) | ((x<<2*4*piece) | (y << 2*4*piece+4)&mask);
+
+        return res;
+    }
+
 }

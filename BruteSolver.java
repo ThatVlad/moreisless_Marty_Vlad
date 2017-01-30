@@ -35,11 +35,12 @@ public class BruteSolver {
 
             closed.add(current);
             for (State target : currentNode.state.transitions(Colors.myC)) {
-
                 //  if (current.G + 1 < target.node.G) { //TODO: maybe this breaks stuff? idk
                 if(closed.contains(new Integer(target.node.hashCode)))
                     continue;; //TODO:maybe this breaks stuff? idk
                 target.node.G = target.AP;
+                int x = Util.readX(target.piecesOpt[0], 0);
+                int y = Util.readY(target.piecesOpt[0], 0);
                 target.node.fitness = target.fitness();
                 open.add(target.node);
                 //   }

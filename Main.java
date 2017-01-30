@@ -11,7 +11,7 @@ public class Main {
     static Scanner sc;
 
     static void initialTurn() {
-       // Walls.initiateWalls(sc);
+        // Walls.initiateWalls(sc);
         Colors.initiateColors(sc);
         for(int i = 0; i < myC; i++) {
             TrueState.decodeTurnAndUpdate(sc.next(), i);
@@ -45,24 +45,30 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         sc = new Scanner(System.in);
         //initialTurn();
-      //  while(executeTurn()) {
-            // continue as long as executeTurn() is not false (as long as it doesn't read "Quit")
-       // }
+        //  while(executeTurn()) {
+        // continue as long as executeTurn() is not false (as long as it doesn't read "Quit")
+        // }
         String walls = "0000100000000000000100000000000000100000000000000000000000000000100000000000000100000000000000100000000000000100";
         Walls.initiateWalls(null, walls);
+
 
         Colors.myC = 0;
         while(true) {
             State init = new State();
-            init.pieces = new Point[4][4];
-            init.pieces[Colors.myC] = new Point[4];
-            init.pieces[Colors.myC][0] = new Point(2, 1);
-            init.pieces[Colors.myC][1] = new Point(2, 1);
-            init.pieces[Colors.myC][2] = new Point(1, 2);
-            init.pieces[Colors.myC][3] = new Point(2, 2);
+            Point[][] pieces = new Point[4][4];
+            pieces[Colors.myC] = new Point[4];
+            pieces[Colors.myC][0] = new Point(1, 1);
+            pieces[Colors.myC][1] = new Point(1, 2);
+            pieces[Colors.myC][2] = new Point(2, 1);
+            pieces[Colors.myC][3] = new Point(2, 2);
+
+            init.piecesOpt = new int[4];
+            for(int m = 0; m < 4; m++)
+                init.piecesOpt[0] |= (pieces[Colors.myC][m].x << 2*4*m) | (pieces[Colors.myC][m].y << 2*4*m + 4);
 
             BruteSolver solver = new BruteSolver();
-            int numJumps = 0;
+            int numMoves = 0;
+
             while (init.fitness() != 0) {
                 long start = System.currentTimeMillis();
                 Move move = solver.solve(init);
@@ -70,23 +76,22 @@ public class Main {
                 Point oldLoc;
                 for (int i = 0; i < move.numMoves; i++) {
                     int piece = move.pieceId[i];
-                    oldLoc= new Point(init.pieces[Colors.myC][piece].x, init.pieces[Colors.myC][piece].y);
+                    oldLoc= Util.readPoint(init.piecesOpt[Colors.myC], piece);
+
                     int steps = move.moveId[i] >= 4 ? 2 : 1;
-                    numJumps += steps-1;
-                    init.pieces[Colors.myC][move.pieceId[i]].x += Util.dx[move.moveId[i]%4]*steps;
-                    init.pieces[Colors.myC][move.pieceId[i]].y += Util.dy[move.moveId[i]%4]*steps;
+
+                    Point newLoc= new Point(Util.dx[move.moveId[i]%4]*steps+oldLoc.x, Util.dy[move.moveId[i]%4]*steps+oldLoc.y);
+                    init.piecesOpt[Colors.myC] = Util.updateXY(init.piecesOpt[0], move.pieceId[i], newLoc.x, newLoc.y);
+
                     drawBoard(init, oldLoc);
+                    numMoves++;
                     int BREAKPOINT = 123;
                 }
-
-              //  System.out.println("Time taken (ms): " + dt);
-             //   System.out.println("TotalJumps: " + numJumps);
-                //  System.out.println("X: " + init.pieces[0].x + " Y:" + init.pieces[0].y);
-             //   drawBoard(init, new Point(0,0));
-                //  Thread.sleep(100);
-                int abc = 123;
             }
-
+            if(numMoves != 26)
+            {
+                int BREAK =123;
+            }
         }
     }
 
@@ -95,7 +100,8 @@ public class Main {
         System.out.flush();
         char[][] board = new char[10][10];
         for(int i= 0; i <4; i++) {
-            board[state.pieces[Colors.myC][i].x][state.pieces[Colors.myC][i].y] = (char)(i + '0');
+            //board[state.pieces[Colors.myC][i].x][state.pieces[Colors.myC][i].y] = (char)(i + '0');
+             board[(state.piecesOpt[Colors.myC] >>> 4*i*2)&15][(state.piecesOpt[Colors.myC] >>> 4*i*2 + 4)&15]=(char)(i + '0');
         }
         board[oldLoc.x][oldLoc.y] = 'X';
 
@@ -112,3 +118,4 @@ public class Main {
         }
     }
 }
+

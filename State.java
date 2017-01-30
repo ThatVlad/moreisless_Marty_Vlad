@@ -11,13 +11,11 @@ import java.util.Random;
 public class State {
     static int[][] board = new int[10][10];
 
-    Point[][] pieces;
+    int[] piecesOpt;
 
     int time;
     int AP; //ability points
     Move firstMoveMade;
-
-    Point moveNewLoc;
 
     Point[] goal = new Point[] {
             new Point(8,1),         //End goal of yellow
@@ -34,6 +32,7 @@ public class State {
         node.state = this;
 
         firstMoveMade = new Move();
+        piecesOpt = new int[4];
     }
 
     double fitness()
@@ -44,21 +43,26 @@ public class State {
             int min = Integer.MAX_VALUE;
             for(int x = 7; x<=8; x++) { // TODO: GENERALIZE FOR MULTIPLE PLAYERS
                 for (int y = 7; y <= 8; y++) {
-                    if (board[x][y] == i+10 || board[x][y] == 0) {
-                        int dist = Math.abs(x - pieces[Colors.myC][i].x) + Math.abs(y - pieces[Colors.myC][i].y);
+                    int pieceX = Util.readX(piecesOpt[Colors.myC],i);
+                    int pieceY = Util.readY(piecesOpt[Colors.myC],i);
+                    if ((x == pieceX&& y == pieceY) || board[x][y] == 0) {
+                        int dist = Math.abs(x - pieceX) + Math.abs(y - pieceY);
                         min = Math.min(min, dist);
                     }
                 }
             }
             result += min;
         }
-        return result/2.2;
+        return result/2.0;
     }
     //Clone constructor
     public State(State s, int prevHashCode, int color, Point start, Point end)
     {
-        pieces = new Point[4][4]; // TODO: GENERALIZE FOR MULTIPLE PLAYERS
-        for(int i = 0; i < 4; i++) pieces[Colors.myC][i] = new Point(s.pieces[Colors.myC][i].x, s.pieces[Colors.myC][i].y);
+        // TODO: GENERALIZE FOR MULTIPLE PLAYERS
+        piecesOpt = new int[4];
+        for(int i = 0; i < 4; i++) {
+            piecesOpt[i] = s.piecesOpt[i];
+        }
         time = s.time;
         node = new Node(prevHashCode, color, start, end);
         node.state = this;
@@ -74,10 +78,8 @@ public class State {
 
     ArrayList<State> transitions(int colorID)
     {
-        clearBoard();
-        for(int j = 0; j < 1; j++) //TODO: EXTEND FOR 4 PLAYERS
-            for(int i = 0; i < 4; i++)
-                board[pieces[j][i].x][pieces[j][i].y] = i+j*4+10;
+        setBoard();
+
         ArrayList<State> L = new ArrayList<>();
 
         ArrayList<Integer> order = swap();
@@ -88,63 +90,54 @@ public class State {
         {
             int i = order.get(i2);
             for(int j2 = 0; j2 < 4; j2++) {
-                int j = order.get(j2);
+                int j = order2.get(j2);
 
-                Point location = pieces[Colors.myC][i];
+                Point location = Util.readPoint(piecesOpt[Colors.myC],i);
+                Point friendlyPos = new Point(location.x+Util.dx[j], location.y+Util.dy[j]);
                 Point newLoc = new Point(location.x+Util.dx[j], location.y+Util.dy[j]);
+
+                int apCost = 1+ Walls.getWall(location, newLoc);
+                if(apCost != 1 && (AP+apCost)/4 != AP/4) //If you spend more than 1 AP for the move, and it costs you an extra turn, then skip move
+                    continue;
+                if((board[friendlyPos.x][friendlyPos.y] >= 10 + 4*Colors.myC && board[friendlyPos.x][friendlyPos.y] < 4+4*Colors.myC+10))      //there is friendly to jump over
+                {
+                    Point jumpLoc = new Point(location.x+2*Util.dx[j], location.y+2*Util.dy[j]);
+                    if (board[jumpLoc.x][jumpLoc.y] > 0)
+                        continue; //There is a piece on location where you jump to
+                    if (Walls.getWall(friendlyPos, jumpLoc) > 0)
+                        continue; //Wall between friendly and where to jump to
+                    if (Walls.getWall(location, friendlyPos) > 0)
+                        continue; //Wall between friendly and me
+
+                    State newState = new State(this, node.hashCode, Colors.myC, location, jumpLoc); //Clone this state
+
+                    newState.piecesOpt[Colors.myC] = Util.updateXY(newState.piecesOpt[Colors.myC], i, jumpLoc.x, jumpLoc.y);
+
+                    newState.AP+=apCost;
+                    if (newState.AP > 3) {
+                        newState.time+=4;
+                    }
+                    if (newState.time == 0) {
+                        newState.firstMoveMade.addMove(4 + j, i);
+                    }
+
+                    L.add((newState));
+                }
 
                 if(board[newLoc.x][newLoc.y] >0)
                     continue;
 
-                if(Walls.getWall(this.pieces[Colors.myC][i], newLoc) > 0)
-                    continue;
                 State newState = new State(this, node.hashCode, Colors.myC, location, newLoc); //Clone this state
-                newState.pieces[Colors.myC][i].setLocation(newLoc);
-                newState.AP++;
-                if(newState.AP > 3) {
-                    newState.time++;
-                   // newState.AP=0;
+                newState.piecesOpt[Colors.myC] = Util.updateXY(newState.piecesOpt[Colors.myC], i, newLoc.x, newLoc.y);; //set new location
 
+                newState.AP+= apCost;
+                if(newState.AP > 3) {
+                    newState.time+=4;
                 }
                 if(newState.time == 0) {
                     newState.firstMoveMade.addMove(j, i);
                 }
 
-               // newState.moveNewLoc = location;
-                L.add((newState));
-            }
-        }
-
-        //Check for jumps
-        //TODO: OPTIMIZE THIS
-        for(int i2= 0; i2 < 4; i2++) {
-            int i = order.get(i2);
-            for (int j2 = 0; j2 < 4; j2++) {
-                int j = order.get(j2);
-
-                Point location = pieces[Colors.myC][i];
-                Point friendlyPos = new Point(location.x+Util.dx[j], location.y+Util.dy[j]);
-                Point newPos = new Point(location.x+Util.dx[j]*2, location.y+Util.dy[j]*2);
-                if(!(board[friendlyPos.x][friendlyPos.y] >= 10 + 4*Colors.myC && board[friendlyPos.x][friendlyPos.y] < 4+4*Colors.myC+10))
-                    continue; //There is no piece to jump over
-                if(board[newPos.x][newPos.y] >0)
-                    continue; //There is a piece on location where you jump to
-                if(Walls.getWall(friendlyPos, newPos) > 0)
-                    continue;
-                if(Walls.getWall(location, friendlyPos) > 0)
-                    continue;
-
-                State newState = new State(this, node.hashCode, Colors.myC, location, newPos); //Clone this state
-                newState.pieces[Colors.myC][i].setLocation(newPos);
-                newState.AP++;
-                if(newState.AP > 3) {
-                    newState.time++;
-                }
-                if(newState.time == 0) {
-                    newState.firstMoveMade.addMove(4 + j, i);
-                }
-
-                // newState.moveNewLoc = location;
                 L.add((newState));
             }
         }
@@ -172,12 +165,18 @@ public class State {
         return order;
     }
 
-    void clearBoard() {
-        for(int x = 0; x<10; x++)
-            for(int y = 0; y<10;y++) {
-                if(x == 0 || y == 0 || x == 9 || y == 9)
+    void setBoard() {
+        for (int x = 0; x < 10; x++)
+            for (int y = 0; y < 10; y++) {
+                if (x == 0 || y == 0 || x == 9 || y == 9)
                     board[x][y] = 5;
                 else board[x][y] = 0;
+            }
+        for (int j = 0; j < 1; j++) //TODO: EXTEND FOR 4 PLAYERS
+            for (int i = 0; i < 4; i++) {
+                int pieceX = Util.readX(piecesOpt[Colors.myC], i);
+                int pieceY = Util.readY(piecesOpt[Colors.myC], i);
+                board[pieceX][pieceY] = i + j * 4 + 10;
             }
     }
 }
