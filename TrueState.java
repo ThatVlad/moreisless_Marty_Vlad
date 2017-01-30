@@ -39,7 +39,7 @@ public class TrueState {
 
     // decodes turn of color c, and updates truestate accordingly
     static void decodeTurnAndUpdate (String input, int c) {
-        //h1f1:g1g3
+        if (input.equals("Nil")) return;
         int moveAmnt = (input.length()+1)/5;
         for (int m = 0; m < moveAmnt; m++) {
             // decode start and end destination
@@ -55,6 +55,18 @@ public class TrueState {
                     break;
                 }
             }
+        }
+    }
+
+    // executes the move by moving our own pieces
+    static void updateSelf (Point[][] coord) {
+        // execute move for each move in the movelist (coord)
+        for (int i = 0; i < 3; i++) {
+            if (coord[i][0] == null) continue; // no move stored
+            Point a = coord[i][0]; // start node
+            Point b = coord[i][1]; // end node
+            board[b.x][b.y] = board[a.x][a.y];
+            board[a.x][a.y] = 0;
         }
     }
 }
