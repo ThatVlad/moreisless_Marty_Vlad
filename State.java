@@ -36,6 +36,22 @@ public class State {
         firstMoveMade = new Move();
     }
 
+    // copies TrueState. Used to construct original state
+    public State(Point[][] initPieces) {
+        node = new Node();
+        node.state = this;
+        this.AP = 0;
+        this.time = TrueState.turn;
+        firstMoveMade = new Move();
+        pieces = new Point[4][4];
+        for (int i = 0; i < 4 ; i++) {
+            pieces[i] = new Point[4];
+            for (int j = 0; j < 4; j++) {
+                pieces[i][j] = new Point(initPieces[i][j]);
+            }
+        }
+    }
+
     double fitness()
     {
         int result = 0;

@@ -10,7 +10,7 @@ public class Walls {
     private static int[][] walls;
 
     // reads wall encoding and stores wall setup
-    public static void initiateWalls (Scanner sc, String in) {
+    public static void initiateWalls (String in) {
         walls = new int[15][15];
         int i = 0; // current input index
         int w;
@@ -32,7 +32,6 @@ public class Walls {
             i++;
             walls[2*x+1][14] = w;
         }
-        int abc = 2143;
     }
 
     // returns the amount of walls between neighbors a and b. Returns -1 for invalid input
