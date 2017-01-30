@@ -1,8 +1,6 @@
 package moreisless_Marty_Vlad;
 
 import java.awt.*;
-import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * Created by Timmermans on 12-1-2017.
@@ -51,8 +49,8 @@ public class Node implements Comparable<Node> {
         int posCode;
         for (int i = 0; i < 1; i++) { // TODO: GENERALIZE FOR MULTIPLE PLAYERS
             for (int j = 0; j < 4; j++) {
-                int x = Util.readX(state.piecesOpt[Colors.myC],i);
-                int y = Util.readY(state.piecesOpt[Colors.myC],i);
+                int x = Util.readX(state.pieces[Colors.myC],i);
+                int y = Util.readY(state.pieces[Colors.myC],i);
                 posCode = hashTable[x][y][i];
               //  posCode = hashTable[state.pieces[i][j].x][state.pieces[i][j].y][i];
                 hashCode = hashCode ^ posCode;

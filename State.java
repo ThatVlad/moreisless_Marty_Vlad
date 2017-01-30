@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Timmermans on 12-1-2017.
@@ -11,7 +12,7 @@ import java.util.Random;
 public class State {
     static int[][] board = new int[10][10];
 
-    int[] piecesOpt;
+    int[] pieces;
 
     int time;
     int AP; //ability points
@@ -32,24 +33,33 @@ public class State {
         node.state = this;
 
         firstMoveMade = new Move();
-        piecesOpt = new int[4];
+        pieces = new int[4];
     }
 
     // copies TrueState. Used to construct original state
-    public State(Point[][] initPieces) {
+    public State(int[] initPieces) {
+
         node = new Node();
         node.state = this;
         this.AP = 0;
         this.time = TrueState.turn;
         firstMoveMade = new Move();
-        pieces = new Point[4][4];
-        for (int i = 0; i < 4 ; i++) {
-            pieces[i] = new Point[4];
-            for (int j = 0; j < 4; j++) {
-                pieces[i][j] = new Point(initPieces[i][j]);
-            }
+        pieces = new int[4];
+        for(int i = 0; i < 4; i++) {
+            pieces[i] = initPieces[i];
         }
     }
+
+    public State(Point[][] temp)
+    {
+        try {
+            throw new Exception("Sorry, I have not been updated yet. Complain to someone");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     double fitness()
     {
@@ -59,8 +69,8 @@ public class State {
             int min = Integer.MAX_VALUE;
             for(int x = 7; x<=8; x++) { // TODO: GENERALIZE FOR MULTIPLE PLAYERS
                 for (int y = 7; y <= 8; y++) {
-                    int pieceX = Util.readX(piecesOpt[Colors.myC],i);
-                    int pieceY = Util.readY(piecesOpt[Colors.myC],i);
+                    int pieceX = Util.readX(pieces[Colors.myC],i);
+                    int pieceY = Util.readY(pieces[Colors.myC],i);
                     if ((x == pieceX&& y == pieceY) || board[x][y] == 0) {
                         int dist = Math.abs(x - pieceX) + Math.abs(y - pieceY);
                         min = Math.min(min, dist);
@@ -75,9 +85,9 @@ public class State {
     public State(State s, int prevHashCode, int color, Point start, Point end)
     {
         // TODO: GENERALIZE FOR MULTIPLE PLAYERS
-        piecesOpt = new int[4];
+        pieces = new int[4];
         for(int i = 0; i < 4; i++) {
-            piecesOpt[i] = s.piecesOpt[i];
+            pieces[i] = s.pieces[i];
         }
         time = s.time;
         node = new Node(prevHashCode, color, start, end);
@@ -108,7 +118,7 @@ public class State {
             for(int j2 = 0; j2 < 4; j2++) {
                 int j = order2.get(j2);
 
-                Point location = Util.readPoint(piecesOpt[Colors.myC],i);
+                Point location = Util.readPoint(pieces[Colors.myC],i);
                 Point friendlyPos = new Point(location.x+Util.dx[j], location.y+Util.dy[j]);
                 Point newLoc = new Point(location.x+Util.dx[j], location.y+Util.dy[j]);
 
@@ -127,7 +137,7 @@ public class State {
 
                     State newState = new State(this, node.hashCode, Colors.myC, location, jumpLoc); //Clone this state
 
-                    newState.piecesOpt[Colors.myC] = Util.updateXY(newState.piecesOpt[Colors.myC], i, jumpLoc.x, jumpLoc.y);
+                    newState.pieces[Colors.myC] = Util.updateXY(newState.pieces[Colors.myC], i, jumpLoc.x, jumpLoc.y);
 
                     newState.AP+=apCost;
                     if (newState.AP > 3) {
@@ -144,7 +154,7 @@ public class State {
                     continue;
 
                 State newState = new State(this, node.hashCode, Colors.myC, location, newLoc); //Clone this state
-                newState.piecesOpt[Colors.myC] = Util.updateXY(newState.piecesOpt[Colors.myC], i, newLoc.x, newLoc.y);; //set new location
+                newState.pieces[Colors.myC] = Util.updateXY(newState.pieces[Colors.myC], i, newLoc.x, newLoc.y);; //set new location
 
                 newState.AP+= apCost;
                 if(newState.AP > 3) {
@@ -190,8 +200,8 @@ public class State {
             }
         for (int j = 0; j < 1; j++) //TODO: EXTEND FOR 4 PLAYERS
             for (int i = 0; i < 4; i++) {
-                int pieceX = Util.readX(piecesOpt[Colors.myC], i);
-                int pieceY = Util.readY(piecesOpt[Colors.myC], i);
+                int pieceX = Util.readX(pieces[Colors.myC], i);
+                int pieceY = Util.readY(pieces[Colors.myC], i);
                 board[pieceX][pieceY] = i + j * 4 + 10;
             }
     }

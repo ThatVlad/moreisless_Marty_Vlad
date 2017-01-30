@@ -1,8 +1,5 @@
 package moreisless_Marty_Vlad;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 
@@ -39,8 +36,8 @@ public class BruteSolver {
                 if(closed.contains(new Integer(target.node.hashCode)))
                     continue;; //TODO:maybe this breaks stuff? idk
                 target.node.G = target.AP;
-                int x = Util.readX(target.piecesOpt[0], 0);
-                int y = Util.readY(target.piecesOpt[0], 0);
+                int x = Util.readX(target.pieces[0], 0);
+                int y = Util.readY(target.pieces[0], 0);
                 target.node.fitness = target.fitness();
                 open.add(target.node);
                 //   }
