@@ -1,17 +1,16 @@
 package moreisless_Marty_Vlad;
 
 import java.awt.*;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Scanner;
 
 import static moreisless_Marty_Vlad.Colors.myC;
 
 public class Main {
     static Scanner sc;
+    static BruteSolver solver;
 
     static void initialTurn() {
-        // Walls.initiateWalls(sc);
+        Walls.initiateWalls(sc.next());
         Colors.initiateColors(sc);
         for(int i = 0; i < myC; i++) {
             TrueState.decodeTurnAndUpdate(sc.next(), i);
@@ -19,54 +18,117 @@ public class Main {
         TrueState.turn = myC;
         //  >> find solution (actions), move is true if we have the ending-rush <<
 
-        //TrueState.updateSelf(actions);
-        //outputActions(actions);
+        // now find optimal state
+        // lastMove is true if we have the ending-rush
+        State init = new State(TrueState.pieces);
+        Point[][] optMoveCoord = null;
+
+        //long start = System.currentTimeMillis();
+        Move opt = solver.solve(init);
+        //long dt = System.currentTimeMillis() - start;
+
+        // execute own calculated move and output it for the others to see
+        optMoveCoord = opt.getMoveCoordinates();
+        TrueState.updateSelf(optMoveCoord);
+
+        System.out.println(MoveCoordinatesToString(optMoveCoord));
     }
 
     static boolean executeTurn() {
+        // do necessary bookkeeping and updating before finding an optimal solution
         TrueState.turn += 4;
-        boolean move = false;
+        boolean lastMove = false;
         for(int i = 0; i < 4; i++) {
             String input = sc.next();
             if (input.equals("Move")) {
-                move = true;
+                lastMove = true;
                 break;
             }
             if (input.equals("Quit")) return false;
             TrueState.decodeTurnAndUpdate(input, i);
         }
-        //  >> find solution (actions), move is true if we have the ending-rush <<
+        // now find optimal state
+        // lastMove is true if we have the ending-rush
+        State init = new State(TrueState.pieces);
+        Point[][] optMoveCoord = null;
 
-        //TrueState.updateSelf(actions);
-        //outputActions(actions);
-        return true;
+        if (!lastMove) {
+            //long start = System.currentTimeMillis();
+            Move opt = solver.solve(init);
+            //long dt = System.currentTimeMillis() - start;
+
+            // execute own calculated move and output it for the others to see
+            optMoveCoord = opt.getMoveCoordinates();
+            TrueState.updateSelf(optMoveCoord);
+            System.out.println(MoveCoordinatesToString(optMoveCoord));
+        }
+        else {
+            // while not all pieces are in position
+            boolean first = true;
+            while(init.fitness() > 0.001) {
+                //long start = System.currentTimeMillis();
+                Move opt = solver.solve(init);
+                //long dt = System.currentTimeMillis() - start;
+                optMoveCoord = opt.getMoveCoordinates();
+                TrueState.updateSelf(optMoveCoord);
+                if (!first) System.out.print(':');
+                System.out.print(MoveCoordinatesToString(optMoveCoord));
+                init = new State(TrueState.pieces);
+                first = false;
+            }
+            System.out.println();
+        }
+        return !lastMove;
+    }
+
+    // translates a 3x2 matrix of coordinates to the appropriate output format
+    public static String MoveCoordinatesToString (Point[][] coord) {
+        // compute movecode for each move in the movelist (coord)
+        String res = "";
+        for (int i = 0; i < coord.length; i++) {
+            if (coord[i][0] == null) continue; // no move stored
+            if (i > 0) res += ':'; // piece-moving is seperated by :
+            Point a = coord[i][0]; // start node
+            res += (char)(a.y - 1 + 'a') + (a.x-1); // add starting position to string
+            Point b = coord[i][1];
+            res += (char)(b.y - 1 + 'a') + (b.x-1); // append end node to output
+        }
+        return res;
+    }
+
+    public static void wipmain(String[] args) throws InterruptedException {
+        sc = new Scanner(System.in);
+        solver = new BruteSolver();
+        initialTurn();
+        while(executeTurn()) {
+            //continue as long as executeTurn() is not false (as long as it doesn't read "Quit")
+        }
     }
 
     public static void main(String[] args) throws InterruptedException {
         sc = new Scanner(System.in);
         //initialTurn();
-        //  while(executeTurn()) {
-        // continue as long as executeTurn() is not false (as long as it doesn't read "Quit")
-        // }
+      //  while(executeTurn()) {
+            // continue as long as executeTurn() is not false (as long as it doesn't read "Quit")
+       // }
         String walls = "0000100000000000000100000000000000100000000000000000000000000000100000000000000100000000000000100000000000000100";
-        Walls.initiateWalls(null, walls);
-
+        Walls.initiateWalls(walls);
 
         Colors.myC = 0;
         while(true) {
             State init = new State();
             Point[][] pieces = new Point[4][4];
             pieces[Colors.myC] = new Point[4];
-            pieces[Colors.myC][0] = new Point(1, 1);
-            pieces[Colors.myC][1] = new Point(1, 2);
-            pieces[Colors.myC][2] = new Point(2, 1);
+            pieces[Colors.myC][0] = new Point(2, 1);
+            pieces[Colors.myC][1] = new Point(2, 1);
+            pieces[Colors.myC][2] = new Point(1, 2);
             pieces[Colors.myC][3] = new Point(2, 2);
 
-            init.piecesOpt = new int[4];
+            init.pieces = new int[4];
             for(int m = 0; m < 4; m++)
-                init.piecesOpt[0] |= (pieces[Colors.myC][m].x << 2*4*m) | (pieces[Colors.myC][m].y << 2*4*m + 4);
+                init.pieces[0] |= (pieces[Colors.myC][m].x << 2*4*m) | (pieces[Colors.myC][m].y << 2*4*m + 4);
 
-            BruteSolver solver = new BruteSolver();
+            solver = new BruteSolver();
             int numMoves = 0;
 
             while (init.fitness() != 0) {
@@ -76,17 +138,24 @@ public class Main {
                 Point oldLoc;
                 for (int i = 0; i < move.numMoves; i++) {
                     int piece = move.pieceId[i];
-                    oldLoc= Util.readPoint(init.piecesOpt[Colors.myC], piece);
+                    oldLoc= Util.readPoint(init.pieces[Colors.myC], piece);
 
                     int steps = move.moveId[i] >= 4 ? 2 : 1;
 
                     Point newLoc= new Point(Util.dx[move.moveId[i]%4]*steps+oldLoc.x, Util.dy[move.moveId[i]%4]*steps+oldLoc.y);
-                    init.piecesOpt[Colors.myC] = Util.updateXY(init.piecesOpt[0], move.pieceId[i], newLoc.x, newLoc.y);
+                    init.pieces[Colors.myC] = Util.updateXY(init.pieces[0], move.pieceId[i], newLoc.x, newLoc.y);
 
                     drawBoard(init, oldLoc);
                     numMoves++;
                     int BREAKPOINT = 123;
                 }
+
+              //  System.out.println("Time taken (ms): " + dt);
+             //   System.out.println("TotalJumps: " + numJumps);
+                //  System.out.println("X: " + init.pieces[0].x + " Y:" + init.pieces[0].y);
+             //   drawBoard(init, new Point(0,0));
+                //  Thread.sleep(100);
+                int abc = 123;
             }
             if(numMoves != 26)
             {
@@ -101,7 +170,7 @@ public class Main {
         char[][] board = new char[10][10];
         for(int i= 0; i <4; i++) {
             //board[state.pieces[Colors.myC][i].x][state.pieces[Colors.myC][i].y] = (char)(i + '0');
-             board[(state.piecesOpt[Colors.myC] >>> 4*i*2)&15][(state.piecesOpt[Colors.myC] >>> 4*i*2 + 4)&15]=(char)(i + '0');
+             board[(state.pieces[Colors.myC] >>> 4*i*2)&15][(state.pieces[Colors.myC] >>> 4*i*2 + 4)&15]=(char)(i + '0');
         }
         board[oldLoc.x][oldLoc.y] = 'X';
 
