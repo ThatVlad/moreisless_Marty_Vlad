@@ -19,12 +19,11 @@ public class State {
     Move firstMoveMade;
 
     Point[] goal = new Point[] {
-            new Point(8,1),         //End goal of yellow
-            new Point(8,8),         //End goal of black
+            new Point(7,1),         //End goal of yellow
+            new Point(7,7),         //End goal of black
             new Point(1,1),         //End goal of white
-            new Point(1,8),         //End goal of red
+            new Point(1,7),         //End goal of red
     };
-    int id = 1; //Color ID
     Node node;
 
     public State()
@@ -37,7 +36,7 @@ public class State {
     }
 
     // copies TrueState. Used to construct original state
-    public State(int[] initPieces) {
+    public State(Point[][] initPieces) {
 
         node = new Node();
         node.state = this;
@@ -45,33 +44,25 @@ public class State {
         this.time = TrueState.turn;
         firstMoveMade = new Move();
         pieces = new int[4];
-        for(int i = 0; i < 4; i++) {
-            pieces[i] = initPieces[i];
+        for (int player = 0; player < 4; player++) {
+            for (int piece = 0; piece < 4; piece++) {
+                int x = initPieces[player][piece].x;
+                int y = initPieces[player][piece].y;
+                pieces[player] = Util.updateXY(pieces[player], piece, x, y);
+            }
         }
     }
-
-    public State(Point[][] temp)
-    {
-        try {
-            throw new Exception("Sorry, I have not been updated yet. Complain to someone");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
 
     double fitness()
     {
         int result = 0;
-        for(int i = 0; i < 4; i++)
-        {
+        for(int i = 0; i < 4; i++) {
             int min = Integer.MAX_VALUE;
-            for(int x = 7; x<=8; x++) { // TODO: GENERALIZE FOR MULTIPLE PLAYERS
-                for (int y = 7; y <= 8; y++) {
-                    int pieceX = Util.readX(pieces[Colors.myC],i);
-                    int pieceY = Util.readY(pieces[Colors.myC],i);
-                    if ((x == pieceX&& y == pieceY) || board[x][y] == 0) {
+            for (int x = goal[Colors.myC].x; x <= goal[Colors.myC].x + 1; x++) { // TODO: GENERALIZE FOR MULTIPLE PLAYERS
+                for (int y = goal[Colors.myC].y; y <= goal[Colors.myC].y + 1; y++) {
+                    int pieceX = Util.readX(pieces[Colors.myC], i);
+                    int pieceY = Util.readY(pieces[Colors.myC], i);
+                    if ((x == pieceX && y == pieceY) || board[x][y] == 0) {
                         int dist = Math.abs(x - pieceX) + Math.abs(y - pieceY);
                         min = Math.min(min, dist);
                     }
@@ -198,11 +189,13 @@ public class State {
                     board[x][y] = 5;
                 else board[x][y] = 0;
             }
-        for (int j = 0; j < 1; j++) //TODO: EXTEND FOR 4 PLAYERS
+        for (int j = 0; j < 4; j++) //TODO: EXTEND FOR 4 PLAYERS
+        {
             for (int i = 0; i < 4; i++) {
-                int pieceX = Util.readX(pieces[Colors.myC], i);
-                int pieceY = Util.readY(pieces[Colors.myC], i);
+                int pieceX = Util.readX(pieces[j], i);
+                int pieceY = Util.readY(pieces[j], i);
                 board[pieceX][pieceY] = i + j * 4 + 10;
             }
+        }
     }
 }

@@ -36,8 +36,6 @@ public class BruteSolver {
                 if(closed.contains(new Integer(target.node.hashCode)))
                     continue;; //TODO:maybe this breaks stuff? idk
                 target.node.G = target.AP;
-                int x = Util.readX(target.pieces[0], 0);
-                int y = Util.readY(target.pieces[0], 0);
                 target.node.fitness = target.fitness();
                 open.add(target.node);
                 //   }

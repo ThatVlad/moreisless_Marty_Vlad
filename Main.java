@@ -114,27 +114,28 @@ public class Main {
         String walls = "0000100000000000000100000000000000100000000000000000000000000000100000000000000100000000000000100000000000000100";
         Walls.initiateWalls(walls);
 
-        Colors.myC = 0;
+        Colors.myC = 1;
         while(true) {
             State init = new State();
             Point[][] pieces = new Point[4][4];
             pieces[Colors.myC] = new Point[4];
-            pieces[Colors.myC][0] = new Point(2, 1);
+            pieces[Colors.myC][0] = new Point(1, 1);
             pieces[Colors.myC][1] = new Point(2, 1);
             pieces[Colors.myC][2] = new Point(1, 2);
             pieces[Colors.myC][3] = new Point(2, 2);
 
             init.pieces = new int[4];
             for(int m = 0; m < 4; m++)
-                init.pieces[0] |= (pieces[Colors.myC][m].x << 2*4*m) | (pieces[Colors.myC][m].y << 2*4*m + 4);
+                init.pieces[Colors.myC] |= (pieces[Colors.myC][m].x << 2*4*m) | (pieces[Colors.myC][m].y << 2*4*m + 4);
 
             solver = new BruteSolver();
             int numMoves = 0;
-
+            long totTime = 0;
             while (init.fitness() != 0) {
                 long start = System.currentTimeMillis();
                 Move move = solver.solve(init);
                 long dt = System.currentTimeMillis() - start;
+                totTime += dt;
                 Point oldLoc;
                 for (int i = 0; i < move.numMoves; i++) {
                     int piece = move.pieceId[i];
@@ -143,20 +144,16 @@ public class Main {
                     int steps = move.moveId[i] >= 4 ? 2 : 1;
 
                     Point newLoc= new Point(Util.dx[move.moveId[i]%4]*steps+oldLoc.x, Util.dy[move.moveId[i]%4]*steps+oldLoc.y);
-                    init.pieces[Colors.myC] = Util.updateXY(init.pieces[0], move.pieceId[i], newLoc.x, newLoc.y);
+                    init.pieces[Colors.myC] = Util.updateXY(init.pieces[Colors.myC], move.pieceId[i], newLoc.x, newLoc.y);
 
                     drawBoard(init, oldLoc);
                     numMoves++;
                     int BREAKPOINT = 123;
                 }
-
-              //  System.out.println("Time taken (ms): " + dt);
-             //   System.out.println("TotalJumps: " + numJumps);
-                //  System.out.println("X: " + init.pieces[0].x + " Y:" + init.pieces[0].y);
-             //   drawBoard(init, new Point(0,0));
-                //  Thread.sleep(100);
-                int abc = 123;
+                System.out.println("Turn time: " + dt);
             }
+            System.out.println("Total time: " + totTime);
+            System.out.println("--------------------------");
             if(numMoves != 26)
             {
                 int BREAK =123;
@@ -169,8 +166,7 @@ public class Main {
         System.out.flush();
         char[][] board = new char[10][10];
         for(int i= 0; i <4; i++) {
-            //board[state.pieces[Colors.myC][i].x][state.pieces[Colors.myC][i].y] = (char)(i + '0');
-             board[(state.pieces[Colors.myC] >>> 4*i*2)&15][(state.pieces[Colors.myC] >>> 4*i*2 + 4)&15]=(char)(i + '0');
+             board[Util.readX(state.pieces[Colors.myC], i)][Util.readY(state.pieces[Colors.myC], i)]=(char)(i + '0');
         }
         board[oldLoc.x][oldLoc.y] = 'X';
 
