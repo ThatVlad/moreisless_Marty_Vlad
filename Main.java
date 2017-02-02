@@ -23,7 +23,7 @@ public class Main {
         Point[][] optMoveCoord = null;
 
         //long start = System.currentTimeMillis();
-        Move opt = solver.solve(init);
+        Move opt = solver.solve(init, Colors.myC);
         //long dt = System.currentTimeMillis() - start;
 
         // execute own calculated move and output it for the others to see
@@ -63,7 +63,7 @@ public class Main {
         if (!lastMove) {
             //long start = System.currentTimeMillis();
             System.err.println("Starting solver.solve()...");
-            Move opt = solver.solve(init);
+            Move opt = solver.solve(init,Colors.myC);
             System.err.println("OPT found");
             //long dt = System.currentTimeMillis() - start;
 
@@ -78,10 +78,11 @@ public class Main {
             System.err.println("This is the last move!");
             // while not all pieces are in position
             boolean first = true;
+
             System.err.print("OUT:");
-            while(init.fitness() > 0.001) {
+            while(init.fitness(Colors.myC) > 0.001) {
                 //long start = System.currentTimeMillis();
-                Move opt = solver.solve(init);
+                Move opt = solver.solve(init,Colors.myC);
                 //long dt = System.currentTimeMillis() - start;
                 optMoveCoord = opt.getMoveCoordinates();
                 TrueState.updateSelf(optMoveCoord);
@@ -132,6 +133,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws InterruptedException {
+        System.err.println(System.currentTimeMillis());
         sc = new Scanner(System.in);
         solver = new BruteSolver();
         TrueState.initializeTrueState();
@@ -144,32 +146,43 @@ public class Main {
     public static void othermain(String[] args) throws InterruptedException {
         sc = new Scanner(System.in);
         //initialTurn();
-      //  while(executeTurn()) {
-            // continue as long as executeTurn() is not false (as long as it doesn't read "Quit")
-       // }
+        //  while(executeTurn()) {
+        // continue as long as executeTurn() is not false (as long as it doesn't read "Quit")
+        // }
         String walls = "0000100000000000000100000000000000100000000000000000000000000000100000000000000100000000000000100000000000000100";
         Walls.initiateWalls(walls);
 
         Colors.myC = 1;
         while(true) {
             State init = new State();
+            Point[] startLocs = new Point[] {
+                    new Point(1,7),         //End goal of yellow
+                    new Point(1,1),         //End goal of black
+                    new Point(7,7),         //End goal of white
+                    new Point(7,1),         //End goal of red
+            };
             Point[][] pieces = new Point[4][4];
-            pieces[Colors.myC] = new Point[4];
-            pieces[Colors.myC][0] = new Point(1, 1);
-            pieces[Colors.myC][1] = new Point(2, 1);
-            pieces[Colors.myC][2] = new Point(1, 2);
-            pieces[Colors.myC][3] = new Point(2, 2);
+            for(int iPlayer = 0; iPlayer<4; iPlayer++) {
+                pieces[iPlayer] = new Point[4];
+                for(int dx = 0; dx < 2; dx++)
+                    for(int dy = 0; dy < 2; dy++)
+                        pieces[iPlayer][2*dx+dy] = new Point(startLocs[iPlayer].x + dx, startLocs[iPlayer].y+dy);
+            }
 
             init.pieces = new int[4];
-            for(int m = 0; m < 4; m++)
-                init.pieces[Colors.myC] |= (pieces[Colors.myC][m].x << 2*4*m) | (pieces[Colors.myC][m].y << 2*4*m + 4);
+            for(int iPlayer = 0; iPlayer<4; iPlayer++) {
+                for (int m = 0; m < 4; m++)
+                    init.pieces[iPlayer] = Util.updateXY(init.pieces[iPlayer], m, pieces[iPlayer][m].x, pieces[iPlayer][m].y);
+            }
+            for (int m = 0; m < 4; m++)
+                init.pieces[Colors.myC] = Util.updateXY(init.pieces[Colors.myC], m, pieces[Colors.myC][m].x, pieces[Colors.myC][m].y);
 
             solver = new BruteSolver();
             int numMoves = 0;
             long totTime = 0;
-            while (init.fitness() != 0) {
+            while (init.fitness(Colors.myC) != 0) {
                 long start = System.currentTimeMillis();
-                Move move = solver.solve(init);
+                Move move = solver.solve(init, Colors.myC);
                 long dt = System.currentTimeMillis() - start;
                 totTime += dt;
                 Point oldLoc;
@@ -182,6 +195,7 @@ public class Main {
                     Point newLoc= new Point(Util.dx[move.moveId[i]%4]*steps+oldLoc.x, Util.dy[move.moveId[i]%4]*steps+oldLoc.y);
                     init.pieces[Colors.myC] = Util.updateXY(init.pieces[Colors.myC], move.pieceId[i], newLoc.x, newLoc.y);
 
+                    System.out.println("===============================================");
                     drawBoard(init, oldLoc);
                     numMoves++;
                     int BREAKPOINT = 123;
@@ -199,10 +213,11 @@ public class Main {
 
     static void drawBoard(State state, Point oldLoc)
     {
-        System.out.flush();
         char[][] board = new char[10][10];
-        for(int i= 0; i <4; i++) {
-             board[Util.readX(state.pieces[Colors.myC], i)][Util.readY(state.pieces[Colors.myC], i)]=(char)(i + '0');
+        for(int j =0; j<4; j++) {
+            for (int i = 0; i < 4; i++) {
+                board[Util.readX(state.pieces[j], i)][Util.readY(state.pieces[j], i)] = (char) (j + '0');
+            }
         }
         board[oldLoc.x][oldLoc.y] = 'X';
 
@@ -219,4 +234,3 @@ public class Main {
         }
     }
 }
-

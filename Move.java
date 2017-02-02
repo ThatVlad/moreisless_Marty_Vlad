@@ -50,8 +50,10 @@ public class Move {
                 b.x+=Util.dx[moveId[i]%4];
                 b.y+=Util.dy[moveId[i]%4];
             }
-            res [i][0] = a;
-            res [i][1] = b;
+            res [i][0] = new Point(a);
+            res [i][1] = new Point(b);
+            a.x = b.x;
+            a.y = b.y;
         }
         return res;
     }
