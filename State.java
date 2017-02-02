@@ -18,7 +18,7 @@ public class State {
     int AP; //ability points
     Move firstMoveMade;
 
-    Point[] goal = new Point[] {
+    static Point[] goal = new Point[] {
             new Point(7,1),         //End goal of yellow
             new Point(7,7),         //End goal of black
             new Point(1,1),         //End goal of white
@@ -53,16 +53,24 @@ public class State {
         }
     }
 
-    double fitness()
+    /**
+     * Computes min amount of AP to finish
+     * @param colorID for which player you want to calculate
+     * @return Min amount of AP
+     */
+    double fitness(int colorID)
     {
         int result = 0;
         for(int i = 0; i < 4; i++) {
-            int min = Integer.MAX_VALUE;
-            for (int x = goal[Colors.myC].x; x <= goal[Colors.myC].x + 1; x++) { // TODO: GENERALIZE FOR MULTIPLE PLAYERS
-                for (int y = goal[Colors.myC].y; y <= goal[Colors.myC].y + 1; y++) {
-                    int pieceX = Util.readX(pieces[Colors.myC], i);
-                    int pieceY = Util.readY(pieces[Colors.myC], i);
-                    if ((x == pieceX && y == pieceY) || board[x][y] == 0) {
+            int min = 100000;
+            for (int x = goal[colorID].x; x <= goal[colorID].x + 1; x++) { // TODO: GENERALIZE FOR MULTIPLE PLAYERS
+                for (int y = goal[colorID].y; y <= goal[colorID].y + 1; y++) {
+                    int pieceX = Util.readX(pieces[colorID], i);
+                    int pieceY = Util.readY(pieces[colorID], i);
+                    int squareType = board[x][y];
+                    if (squareType == 0 || //Square is free
+                       (x == pieceX && y == pieceY) /*|| //This piece is on the square
+                            (squareType-10)/4 != colorID*/) { //Piece of other player is blocking square
                         int dist = Math.abs(x - pieceX) + Math.abs(y - pieceY);
                         min = Math.min(min, dist);
                     }
@@ -73,7 +81,7 @@ public class State {
         return result/2.0;
     }
     //Clone constructor
-    public State(State s, int prevHashCode, int color, Point start, Point end)
+    public State(State s, int prevHashCode, int colorID, Point start, Point end)
     {
         // TODO: GENERALIZE FOR MULTIPLE PLAYERS
         pieces = new int[4];
@@ -81,7 +89,7 @@ public class State {
             pieces[i] = s.pieces[i];
         }
         time = s.time;
-        node = new Node(prevHashCode, color, start, end);
+        node = new Node(prevHashCode, colorID, start, end);
         node.state = this;
         firstMoveMade = new Move();
         this.AP = s.AP;
@@ -93,10 +101,11 @@ public class State {
         firstMoveMade.numMoves = s.firstMoveMade.numMoves;
     }
 
-    ArrayList<State> transitions(int colorID)
+    ArrayList<State> transitions()
     {
-        setBoard();
+        int colorID = time % 4; //Decide whose should move
 
+        setBoard();
         ArrayList<State> L = new ArrayList<>();
 
         ArrayList<Integer> order = swap();
@@ -109,14 +118,14 @@ public class State {
             for(int j2 = 0; j2 < 4; j2++) {
                 int j = order2.get(j2);
 
-                Point location = Util.readPoint(pieces[Colors.myC],i);
+                Point location = Util.readPoint(pieces[colorID],i);
                 Point friendlyPos = new Point(location.x+Util.dx[j], location.y+Util.dy[j]);
                 Point newLoc = new Point(location.x+Util.dx[j], location.y+Util.dy[j]);
 
                 int apCost = 1+ Walls.getWall(location, newLoc);
                 if(apCost != 1 && (AP+apCost)/4 != AP/4) //If you spend more than 1 AP for the move, and it costs you an extra turn, then skip move
                     continue;
-                if((board[friendlyPos.x][friendlyPos.y] >= 10 + 4*Colors.myC && board[friendlyPos.x][friendlyPos.y] < 4+4*Colors.myC+10))      //there is friendly to jump over
+                if((board[friendlyPos.x][friendlyPos.y] >= 10 + 4*colorID && board[friendlyPos.x][friendlyPos.y] < 4+4*colorID+10))      //there is friendly to jump over
                 {
                     Point jumpLoc = new Point(location.x+2*Util.dx[j], location.y+2*Util.dy[j]);
                     if (board[jumpLoc.x][jumpLoc.y] > 0)
@@ -126,15 +135,15 @@ public class State {
                     if (Walls.getWall(location, friendlyPos) > 0)
                         continue; //Wall between friendly and me
 
-                    State newState = new State(this, node.hashCode, Colors.myC, location, jumpLoc); //Clone this state
+                    State newState = new State(this, node.hashCode, colorID, location, jumpLoc); //Clone this state
 
-                    newState.pieces[Colors.myC] = Util.updateXY(newState.pieces[Colors.myC], i, jumpLoc.x, jumpLoc.y);
+                    newState.pieces[colorID] = Util.updateXY(newState.pieces[colorID], i, jumpLoc.x, jumpLoc.y);
 
                     newState.AP+=apCost;
                     if (newState.AP > 3) {
                         newState.time+=4;
                     }
-                    if (newState.time == 0) {
+                    if (newState.time < 4) {
                         newState.firstMoveMade.addMove(4 + j, i);
                     }
 
@@ -144,17 +153,16 @@ public class State {
                 if(board[newLoc.x][newLoc.y] >0)
                     continue;
 
-                State newState = new State(this, node.hashCode, Colors.myC, location, newLoc); //Clone this state
-                newState.pieces[Colors.myC] = Util.updateXY(newState.pieces[Colors.myC], i, newLoc.x, newLoc.y);; //set new location
+                State newState = new State(this, node.hashCode, colorID, location, newLoc); //Clone this state
+                newState.pieces[colorID] = Util.updateXY(newState.pieces[colorID], i, newLoc.x, newLoc.y);; //set new location
 
                 newState.AP+= apCost;
                 if(newState.AP > 3) {
                     newState.time+=4;
                 }
-                if(newState.time == 0) {
+                if(newState.time < 4) {
                     newState.firstMoveMade.addMove(j, i);
                 }
-
                 L.add((newState));
             }
         }

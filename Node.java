@@ -49,8 +49,8 @@ public class Node implements Comparable<Node> {
         int posCode;
         for (int i = 0; i < 4; i++) { // TODO: GENERALIZE FOR MULTIPLE PLAYERS
             for (int j = 0; j < 4; j++) {
-                int x = Util.readX(state.pieces[i],i);
-                int y = Util.readY(state.pieces[i],i);
+                int x = Util.readX(state.pieces[i],j);
+                int y = Util.readY(state.pieces[i],j);
                 posCode = hashTable[x][y][i];
                 hashCode = hashCode ^ posCode;
             }
