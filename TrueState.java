@@ -1,4 +1,4 @@
-package moreisless_Marty_Vlad;
+//package moreisless_Marty_Vlad;
 
 import java.awt.*;
 
@@ -10,7 +10,7 @@ public class TrueState {
     static Point pieces [][];
     static int turn;
 
-    TrueState() {
+    static public void initializeTrueState() {
         turn = 0;
         board = new int[10][10];
         for (int i = 0; i < 10; i ++ ) {

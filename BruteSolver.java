@@ -1,4 +1,4 @@
-package moreisless_Marty_Vlad;
+//package moreisless_Marty_Vlad;
 
 import java.util.HashSet;
 import java.util.PriorityQueue;
@@ -41,12 +41,12 @@ public class BruteSolver {
                 //   }
             }
         }
-        System.out.println("States searched: " + closed.size());
+        //System.out.println("States searched: " + closed.size());
         if (currentNode != null)
         {
             return currentNode.state.firstMoveMade;
         }
-        System.out.println("Wut..");
+        System.out.println("ERROR293");
         return new Move();
     }
 }

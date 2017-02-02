@@ -1,21 +1,20 @@
-package moreisless_Marty_Vlad;
+//package moreisless_Marty_Vlad;
 
 import java.awt.*;
 import java.util.Scanner;
-
-import static moreisless_Marty_Vlad.Colors.myC;
 
 public class Main {
     static Scanner sc;
     static BruteSolver solver;
 
     static void initialTurn() {
+        System.err.println("Starting initial turn...");
         Walls.initiateWalls(sc.next());
         Colors.initiateColors(sc);
-        for(int i = 0; i < myC; i++) {
+        for(int i = 0; i < Colors.myC; i++) {
             TrueState.decodeTurnAndUpdate(sc.next(), i);
         }
-        TrueState.turn = myC;
+        TrueState.turn = Colors.myC;
         //  >> find solution (actions), move is true if we have the ending-rush <<
 
         // now find optimal state
@@ -30,23 +29,32 @@ public class Main {
         // execute own calculated move and output it for the others to see
         optMoveCoord = opt.getMoveCoordinates();
         TrueState.updateSelf(optMoveCoord);
-
-        System.out.println(MoveCoordinatesToString(optMoveCoord));
+        String output = MoveCoordinatesToString(optMoveCoord);
+        System.err.println("OUT:" + output);
+        System.out.println(output);
     }
 
     static boolean executeTurn() {
+        System.err.println("____________________________________________");
+        System.err.println("Starting executeTurn");
         // do necessary bookkeeping and updating before finding an optimal solution
         TrueState.turn += 4;
+        System.err.println("Current turn: " + TrueState.turn);
+        System.err.println("Reading and decoding previous actions from Caia...");
         boolean lastMove = false;
-        for(int i = 0; i < 4; i++) {
+        for(int i = 0; i < 3; i++) {
             String input = sc.next();
             if (input.equals("Move")) {
                 lastMove = true;
                 break;
             }
-            if (input.equals("Quit")) return false;
+            if (input.equals("Quit")) {
+                System.err.println("Caia tells to Quit");
+                return false;
+            }
             TrueState.decodeTurnAndUpdate(input, i);
         }
+        System.err.println("Decoding successful");
         // now find optimal state
         // lastMove is true if we have the ending-rush
         State init = new State(TrueState.pieces);
@@ -54,28 +62,40 @@ public class Main {
 
         if (!lastMove) {
             //long start = System.currentTimeMillis();
+            System.err.println("Starting solver.solve()...");
             Move opt = solver.solve(init);
+            System.err.println("OPT found");
             //long dt = System.currentTimeMillis() - start;
 
             // execute own calculated move and output it for the others to see
             optMoveCoord = opt.getMoveCoordinates();
             TrueState.updateSelf(optMoveCoord);
-            System.out.println(MoveCoordinatesToString(optMoveCoord));
+            String output = MoveCoordinatesToString(optMoveCoord);
+            System.err.println("OUT:" + output);
+            System.out.println(output);
         }
         else {
+            System.err.println("This is the last move!");
             // while not all pieces are in position
             boolean first = true;
+            System.err.print("OUT:");
             while(init.fitness() > 0.001) {
                 //long start = System.currentTimeMillis();
                 Move opt = solver.solve(init);
                 //long dt = System.currentTimeMillis() - start;
                 optMoveCoord = opt.getMoveCoordinates();
                 TrueState.updateSelf(optMoveCoord);
-                if (!first) System.out.print(':');
-                System.out.print(MoveCoordinatesToString(optMoveCoord));
+                if (!first) {
+                    System.err.println(':');
+                    System.out.print(':');
+                }
+                String output = MoveCoordinatesToString(optMoveCoord);
+                System.err.print(output);
+                System.out.print(output);
                 init = new State(TrueState.pieces);
                 first = false;
             }
+            System.err.println();
             System.out.println();
         }
         return !lastMove;
@@ -83,29 +103,45 @@ public class Main {
 
     // translates a 3x2 matrix of coordinates to the appropriate output format
     public static String MoveCoordinatesToString (Point[][] coord) {
+        if (coord[0][0] == null) {
+            System.err.println("ERROR: Empty move coordinates given to MoveCoordinatesToString");
+            System.out.println("kill me");
+        }
+        for (int i = 0; i < coord.length; i++) {
+            System.err.print("Turn " + TrueState.turn + ", move " + i + ": ");
+            if (coord[i][0] != null) {
+                for (int j = 0; j < coord[i].length; j++) {
+                    System.err.print(coord[i][j].x + "," + coord[i][j].y + " : ");
+                }
+            }
+            else System.err.print("EMPTY");
+            System.err.println();
+        }
         // compute movecode for each move in the movelist (coord)
         String res = "";
         for (int i = 0; i < coord.length; i++) {
             if (coord[i][0] == null) continue; // no move stored
             if (i > 0) res += ':'; // piece-moving is seperated by :
             Point a = coord[i][0]; // start node
-            res += (char)(a.y - 1 + 'a') + (a.x-1); // add starting position to string
+            res= res + (char)(a.y - 1 + 'a') + (a.x); // add starting position to string
             Point b = coord[i][1];
-            res += (char)(b.y - 1 + 'a') + (b.x-1); // append end node to output
+            res = res + (char)(b.y - 1 + 'a') + (b.x); // append end node to output
         }
+        System.err.println("Turn " + TrueState.turn + " code: "+ res);
         return res;
     }
 
-    public static void wipmain(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
         sc = new Scanner(System.in);
         solver = new BruteSolver();
+        TrueState.initializeTrueState();
         initialTurn();
         while(executeTurn()) {
             //continue as long as executeTurn() is not false (as long as it doesn't read "Quit")
         }
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void othermain(String[] args) throws InterruptedException {
         sc = new Scanner(System.in);
         //initialTurn();
       //  while(executeTurn()) {

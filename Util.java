@@ -1,4 +1,4 @@
-package moreisless_Marty_Vlad;
+//package moreisless_Marty_Vlad;
 
 import java.awt.*;
 import java.util.Random;
