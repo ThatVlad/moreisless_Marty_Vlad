@@ -9,6 +9,7 @@ public class Move {
     int[] moveId;
     int[] pieceId;
     int numMoves = 0; //TODO: MAYBE ADD THIS TO HASHING??
+    public int APused;
 
     public Move()
     {

@@ -87,4 +87,34 @@ public class TrueState {
             }
         }
     }
+
+    static Point[] goal = new Point[] {
+            new Point(7,1),         //End goal of yellow
+            new Point(7,7),         //End goal of black
+            new Point(1,1),         //End goal of white
+            new Point(1,7),         //End goal of red
+    };
+
+    public static double fitness(int colorID)
+    {
+        int result = 0;
+        for(int i = 0; i < 4; i++) {
+            int min = 100000;
+            for (int x = goal[colorID].x; x <= goal[colorID].x + 1; x++) { // TODO: GENERALIZE FOR MULTIPLE PLAYERS
+                for (int y = goal[colorID].y; y <= goal[colorID].y + 1; y++) {
+                    int pieceX = Util.readX(pieces[colorID], i);
+                    int pieceY = Util.readY(pieces[colorID], i);
+                    int squareType = board[x][y];
+                    if (squareType == 0 || //Square is free
+                            (x == pieceX && y == pieceY) || //This piece is on the square
+                            (squareType-10)/4 != colorID) { //Piece of other player is blocking square
+                        int dist = Math.abs(x - pieceX) + Math.abs(y - pieceY);
+                        min = Math.min(min, dist);
+                    }
+                }
+            }
+            result += min;
+        }
+        return result/2.0;
+    }
 }

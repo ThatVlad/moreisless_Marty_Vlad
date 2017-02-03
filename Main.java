@@ -73,6 +73,25 @@ public class Main {
             // execute own calculated move and output it for the others to see
             optMoveCoord = opt.getMoveCoordinates();
             TrueState.updateSelf(optMoveCoord);
+
+            // if we are finished already, and we have leftover AP, then help friend out
+            if (opt.APused < 3 && TrueState.fitness(Colors.myC) < 0.001) {
+                int myNumMoves = opt.firstMoveMade.numMoves;
+                init = new State(TrueState.pieces);
+                init.AP = 3-opt.APused;
+                init.firstMoveMade = opt.firstMoveMade;
+                init.time = Colors.frC;
+                startTime = System.currentTimeMillis();
+                opt = solver.solve(init, Colors.frC, (long)(0.3*timeLeft));
+                timeLeft = Math.max(0,timeLeft-(System.currentTimeMillis() - startTime));
+                for (int i = myNumMoves; i < 3; i++) {
+                    if (pieceId[i]!= -1) {
+                        opt.pieceId[i] += 4;
+                    }
+                }
+                optMoveCoord = opt.getMoveCoordinates();
+            }
+
             String output = MoveCoordinatesToString(optMoveCoord);
             System.err.println("OUT:" + output);
             System.out.println(output);

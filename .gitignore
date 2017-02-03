@@ -1,4 +1,4 @@
-*.class
+.class
 
 # Windows image file caches
 Thumbs.db
@@ -49,3 +49,4 @@ Temporary Items
 .apdisk
 
 
+*.class

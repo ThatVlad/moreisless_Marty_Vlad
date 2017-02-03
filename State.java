@@ -16,7 +16,7 @@ public class State {
 
     int time;
     int AP; //ability points
-    Move firstMoveMade;
+    public Move firstMoveMade;
 
     static Point[] goal = new Point[] {
             new Point(7,1),         //End goal of yellow
