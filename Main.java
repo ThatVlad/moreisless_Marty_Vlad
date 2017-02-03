@@ -64,11 +64,13 @@ public class Main {
         Point[][] optMoveCoord = null;
 
         if (!lastMove) {
+            //long start = System.currentTimeMillis();
             System.err.println("Starting solver.solve()...");
             long startTime = System.currentTimeMillis();
             Move opt = solver.solve(init, Colors.myC, (long)(0.3*timeLeft));
             timeLeft = Math.max(0,timeLeft-(System.currentTimeMillis() - startTime));
             System.err.println("OPT found");
+            //long dt = System.currentTimeMillis() - start;
 
             // execute own calculated move and output it for the others to see
             optMoveCoord = opt.getMoveCoordinates();
@@ -203,16 +205,16 @@ public class Main {
             for(int iPlayer = 0; iPlayer<4; iPlayer++) {
                 for (int m = 0; m < 4; m++)
                     init.pieces[iPlayer] = Util.updateXY(init.pieces[iPlayer], m, pieces[iPlayer][m].x, pieces[iPlayer][m].y);
-            }
+            }/*
             for (int m = 0; m < 4; m++)
-                init.pieces[Colors.myC] = Util.updateXY(init.pieces[Colors.myC], m, pieces[Colors.myC][m].x, pieces[Colors.myC][m].y);
+                init.pieces[Colors.myC] = Util.updateXY(init.pieces[Colors.myC], m, pieces[Colors.myC][m].x, pieces[Colors.myC][m].y);*/
 
             solver = new BruteSolver();
             int numMoves = 0;
             long totTime = 0;
             while (init.fitness(Colors.myC) != 0) {
                 long start = System.currentTimeMillis();
-                Move move = solver.solve(init, Colors.myC, 2000);
+                Move move = solver.solve(init, Colors.myC, false, 5000);
                 long dt = System.currentTimeMillis() - start;
                 totTime += dt;
                 Point oldLoc;
