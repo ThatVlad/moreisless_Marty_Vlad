@@ -1,4 +1,4 @@
-//package moreisless_Marty_Vlad;
+package moreisless_Marty_Vlad;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -12,7 +12,6 @@ public class BruteSolver {
     /**
      * @param initalState state from which brute force is started
      * @param colorID specifies for which player we optimize
-     * @param maxCompTime specifies how many ms this function may take
      * @return returns the optimal first move
      */
     Move solve(State initalState, int colorID)
@@ -34,16 +33,10 @@ public class BruteSolver {
         while(!open.isEmpty()) {
             currentNode = open.poll();
             int  current = new Integer(currentNode.hashCode);
-
-            Point loc1 = Util.readPoint(currentNode.state.pieces[1], 1);
-            Point loc2 = Util.readPoint(currentNode.state.pieces[1], 2);
-            Point loc3 = Util.readPoint(currentNode.state.pieces[1], 3);
-            Point loc4 = Util.readPoint(currentNode.state.pieces[1], 4);
-
-            if(currentNode.fitness < currentBest.fitness)
+            if(currentNode.fitness < currentBest.fitness || currentNode.hashCode == currentBest.hashCode)
                 currentBest = currentNode;
 
-            if(currentNode.H() <= 2) break;
+            if(currentNode.H() <= 1/100) break;
 
             if (closed.contains(current))
                 continue;
@@ -65,9 +58,9 @@ public class BruteSolver {
             int WTF = 123;
         }
         double fitness = currentNode.fitness;
-        if (currentNode != null)
+        if (currentBest != null)
         {
-            return currentNode.state.firstMoveMade;
+            return currentBest.state.firstMoveMade;
         }
         System.out.println("Wut..");
         return new Move();
