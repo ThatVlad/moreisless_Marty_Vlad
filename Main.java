@@ -6,6 +6,7 @@ import java.util.Scanner;
 public class Main {
     static Scanner sc;
     static BruteSolver solver;
+    static long timeLeft;
 
     static void initialTurn() {
         System.err.println("Starting initial turn...");
@@ -22,9 +23,9 @@ public class Main {
         State init = new State(TrueState.pieces);
         Point[][] optMoveCoord = null;
 
-        //long start = System.currentTimeMillis();
-        Move opt = solver.solve(init, Colors.myC);
-        //long dt = System.currentTimeMillis() - start;
+        long startTime = System.currentTimeMillis();
+        Move opt = solver.solve(init, Colors.myC, (long)(0.3*timeLeft));
+        timeLeft = Math.max(0,timeLeft-(System.currentTimeMillis() - startTime));
 
         // execute own calculated move and output it for the others to see
         optMoveCoord = opt.getMoveCoordinates();
@@ -46,12 +47,14 @@ public class Main {
             String input = sc.next();
             if (input.equals("Move")) {
                 lastMove = true;
+                System.err.println("Got move command from Caia");
                 break;
             }
             if (input.equals("Quit")) {
                 System.err.println("Caia tells to Quit");
                 return false;
             }
+            System.err.println("Passing " + input + " to decodeTurnAndUpdate");
             TrueState.decodeTurnAndUpdate(input, (Colors.myC + 1 + i)%4);
         }
         System.err.println("Decoding successful");
@@ -61,11 +64,11 @@ public class Main {
         Point[][] optMoveCoord = null;
 
         if (!lastMove) {
-            //long start = System.currentTimeMillis();
             System.err.println("Starting solver.solve()...");
-            Move opt = solver.solve(init,Colors.myC);
+            long startTime = System.currentTimeMillis();
+            Move opt = solver.solve(init, Colors.myC, (long)(0.3*timeLeft));
+            timeLeft = Math.max(0,timeLeft-(System.currentTimeMillis() - startTime));
             System.err.println("OPT found");
-            //long dt = System.currentTimeMillis() - start;
 
             // execute own calculated move and output it for the others to see
             optMoveCoord = opt.getMoveCoordinates();
@@ -78,12 +81,19 @@ public class Main {
             System.err.println("This is the last move!");
             // while not all pieces are in position
             boolean first = true;
-
+            for (int i = 0; i < 4; i++) {
+                if (i == Colors.myC) continue;
+                for (int j = 0; j < 4 ; j++) {
+                    TrueState.pieces[i][j].x = 0;
+                    TrueState.pieces[i][j].y = 0;
+                }
+            }
+            init = new State(TrueState.pieces);
             System.err.print("OUT:");
             while(init.fitness(Colors.myC) > 0.001) {
-                //long start = System.currentTimeMillis();
-                Move opt = solver.solve(init,Colors.myC);
-                //long dt = System.currentTimeMillis() - start;
+                long startTime = System.currentTimeMillis();
+                Move opt = solver.solve(init, Colors.myC, (long)(0.3*timeLeft));
+                timeLeft = Math.max(0,timeLeft-(System.currentTimeMillis() - startTime));
                 optMoveCoord = opt.getMoveCoordinates();
                 TrueState.updateSelf(optMoveCoord);
                 if (!first) {
@@ -133,6 +143,8 @@ public class Main {
     }
 
     public static void main(String[] args) throws InterruptedException {
+        System.err.println(System.currentTimeMillis());
+        timeLeft = 29000;
         sc = new Scanner(System.in);
         TrueState.initializeTrueState();
         solver = new BruteSolver();
@@ -181,7 +193,7 @@ public class Main {
             long totTime = 0;
             while (init.fitness(Colors.myC) != 0) {
                 long start = System.currentTimeMillis();
-                Move move = solver.solve(init, Colors.myC);
+                Move move = solver.solve(init, Colors.myC, 2000);
                 long dt = System.currentTimeMillis() - start;
                 totTime += dt;
                 Point oldLoc;

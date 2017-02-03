@@ -44,9 +44,10 @@ public class TrueState {
         int moveAmnt = (input.length()+1)/5;
         for (int m = 0; m < moveAmnt; m++) {
             // decode start and end destination
-            Point a = new Point(input.charAt(1+m*5)-'0'+1,input.charAt(m*5)-'a'+1);
-            Point b = new Point(input.charAt(3+m*5)-'0'+1,input.charAt(2+m*5)-'a'+1);
+            Point a = new Point(input.charAt(1+m*5)-'0',input.charAt(m*5)-'a'+1);
+            Point b = new Point(input.charAt(3+m*5)-'0',input.charAt(2+m*5)-'a'+1);
             // update board and player pieces lists
+            c = board[a.x][a.y]-10;
             board[a.x][a.y] = 0;
             board[b.x][b.y] = c+10;
             for (int i = 0; i < 4; i++) {
@@ -71,6 +72,10 @@ public class TrueState {
             board[a.x][a.y] = 0;
             // updating piece in pieces
             int pc = board[b.x][b.y]-10;
+            if (pc == -10) {
+                System.err.println("pc=-10 Move from (" + a.x + "," + a.y + ") to (" + b.x + "," + b.y + ")");
+                System.out.println("kill me please");
+            }
             for(int j = 0; j < 4; j++) {
                 Point piece = pieces[pc][j];
                 if (piece.x == a.x && piece.y == a.y)

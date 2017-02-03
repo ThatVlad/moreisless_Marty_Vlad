@@ -1,4 +1,4 @@
-package moreisless_Marty_Vlad;
+//package moreisless_Marty_Vlad;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -14,7 +14,7 @@ public class BruteSolver {
      * @param colorID specifies for which player we optimize
      * @return returns the optimal first move
      */
-    Move solve(State initalState, int colorID)
+    Move solve(State initalState, int colorID, long compTime)
     {
         long startTime = System.currentTimeMillis();
         PriorityQueue<Node> open = new PriorityQueue<Node>();
@@ -33,10 +33,10 @@ public class BruteSolver {
         while(!open.isEmpty()) {
             currentNode = open.poll();
             int  current = new Integer(currentNode.hashCode);
-            if(currentNode.fitness < currentBest.fitness || currentNode.hashCode == currentBest.hashCode)
+            if(currentBest.fitness > currentNode.fitness)
                 currentBest = currentNode;
 
-            if(currentNode.H() <= 1/100) break;
+            if(currentNode.H() <= 1/100.0 || compTime < System.currentTimeMillis() - startTime) break;
 
             if (closed.contains(current))
                 continue;

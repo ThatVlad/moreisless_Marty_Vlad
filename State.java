@@ -30,7 +30,7 @@ public class State {
     {
         node = new Node();
         node.state = this;
-
+        //AP = 0;
         firstMoveMade = new Move();
         pieces = new int[4];
     }
@@ -69,8 +69,8 @@ public class State {
                     int pieceY = Util.readY(pieces[colorID], i);
                     int squareType = board[x][y];
                     if (squareType == 0 || //Square is free
-                       (x == pieceX && y == pieceY) /*|| //This piece is on the square
-                            (squareType-10)/4 != colorID*/) { //Piece of other player is blocking square
+                            (x == pieceX && y == pieceY) || //This piece is on the square
+                            (squareType-10)/4 != colorID) { //Piece of other player is blocking square
                         int dist = Math.abs(x - pieceX) + Math.abs(y - pieceY);
                         min = Math.min(min, dist);
                     }
@@ -125,7 +125,7 @@ public class State {
                 int apCost = 1+ Walls.getWall(location, newLoc);
                 if(apCost != 1 && (AP+apCost)/4 != AP/4) //If you spend more than 1 AP for the move, and it costs you an extra turn, then skip move
                     continue;
-                if((board[friendlyPos.x][friendlyPos.y] >= 10 + 4*colorID && board[friendlyPos.x][friendlyPos.y] < 4+4*colorID+10))      //there is friendly to jump over
+                if(board[friendlyPos.x][friendlyPos.y] >= 10)      //there is friendly to jump over
                 {
                     Point jumpLoc = new Point(location.x+2*Util.dx[j], location.y+2*Util.dy[j]);
                     if (board[jumpLoc.x][jumpLoc.y] > 0)
