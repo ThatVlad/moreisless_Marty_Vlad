@@ -1,4 +1,4 @@
-//package moreisless_Marty_Vlad;
+package moreisless_Marty_Vlad;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -69,8 +69,8 @@ public class State {
                     int pieceY = Util.readY(pieces[colorID], i);
                     int squareType = board[x][y];
                     if (squareType == 0 || //Square is free
-                       (x == pieceX && y == pieceY) /*|| //This piece is on the square
-                            (squareType-10)/4 != colorID*/) { //Piece of other player is blocking square
+                       (x == pieceX && y == pieceY) || //This piece is on the square
+                            (squareType-10)/4 != colorID) { //Piece of other player is blocking square
                         int dist = Math.abs(x - pieceX) + Math.abs(y - pieceY);
                         min = Math.min(min, dist);
                     }
@@ -143,7 +143,8 @@ public class State {
                     if (newState.AP > 3) {
                         newState.time+=4;
                     }
-                    if (newState.time < 4) {
+
+                    if(newState.AP <= 3) {
                         newState.firstMoveMade.addMove(4 + j, i);
                     }
 
@@ -160,9 +161,14 @@ public class State {
                 if(newState.AP > 3) {
                     newState.time+=4;
                 }
-                if(newState.time < 4) {
+                if(newState.AP <= 3) {
                     newState.firstMoveMade.addMove(j, i);
                 }
+
+                if((newState.AP) % 3 == 0) {
+                    int abc =123;
+                }
+
                 L.add((newState));
             }
         }

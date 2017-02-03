@@ -1,4 +1,4 @@
-//package moreisless_Marty_Vlad;
+package moreisless_Marty_Vlad;
 
 import java.awt.*;
 import java.util.Scanner;
@@ -6,6 +6,7 @@ import java.util.Scanner;
 public class Main {
     static Scanner sc;
     static BruteSolver solver;
+    static int COMP_TIME = 99999999;
 
     static void initialTurn() {
         System.err.println("Starting initial turn...");
@@ -23,7 +24,7 @@ public class Main {
         Point[][] optMoveCoord = null;
 
         //long start = System.currentTimeMillis();
-        Move opt = solver.solve(init, Colors.myC);
+        Move opt = solver.solve(init, Colors.myC,COMP_TIME);
         //long dt = System.currentTimeMillis() - start;
 
         // execute own calculated move and output it for the others to see
@@ -63,7 +64,7 @@ public class Main {
         if (!lastMove) {
             //long start = System.currentTimeMillis();
             System.err.println("Starting solver.solve()...");
-            Move opt = solver.solve(init,Colors.myC);
+            Move opt = solver.solve(init,Colors.myC,COMP_TIME);
             System.err.println("OPT found");
             //long dt = System.currentTimeMillis() - start;
 
@@ -82,7 +83,7 @@ public class Main {
             System.err.print("OUT:");
             while(init.fitness(Colors.myC) > 0.001) {
                 //long start = System.currentTimeMillis();
-                Move opt = solver.solve(init,Colors.myC);
+                Move opt = solver.solve(init,Colors.myC,COMP_TIME);
                 //long dt = System.currentTimeMillis() - start;
                 optMoveCoord = opt.getMoveCoordinates();
                 TrueState.updateSelf(optMoveCoord);
@@ -132,7 +133,7 @@ public class Main {
         return res;
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main2(String[] args) throws InterruptedException {
         sc = new Scanner(System.in);
         TrueState.initializeTrueState();
         solver = new BruteSolver();
@@ -142,7 +143,7 @@ public class Main {
         }
     }
 
-    public static void othermain(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
         sc = new Scanner(System.in);
         //initialTurn();
         //  while(executeTurn()) {
@@ -169,10 +170,10 @@ public class Main {
             }
 
             init.pieces = new int[4];
-            for(int iPlayer = 0; iPlayer<4; iPlayer++) {
+         /*   for(int iPlayer = 0; iPlayer<4; iPlayer++) {
                 for (int m = 0; m < 4; m++)
                     init.pieces[iPlayer] = Util.updateXY(init.pieces[iPlayer], m, pieces[iPlayer][m].x, pieces[iPlayer][m].y);
-            }
+            }*/
             for (int m = 0; m < 4; m++)
                 init.pieces[Colors.myC] = Util.updateXY(init.pieces[Colors.myC], m, pieces[Colors.myC][m].x, pieces[Colors.myC][m].y);
 
@@ -181,7 +182,7 @@ public class Main {
             long totTime = 0;
             while (init.fitness(Colors.myC) != 0) {
                 long start = System.currentTimeMillis();
-                Move move = solver.solve(init, Colors.myC);
+                Move move = solver.solve(init, Colors.myC,COMP_TIME);
                 long dt = System.currentTimeMillis() - start;
                 totTime += dt;
                 Point oldLoc;
