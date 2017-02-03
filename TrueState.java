@@ -102,8 +102,8 @@ public class TrueState {
             int min = 100000;
             for (int x = goal[colorID].x; x <= goal[colorID].x + 1; x++) { // TODO: GENERALIZE FOR MULTIPLE PLAYERS
                 for (int y = goal[colorID].y; y <= goal[colorID].y + 1; y++) {
-                    int pieceX = Util.readX(pieces[colorID], i);
-                    int pieceY = Util.readY(pieces[colorID], i);
+                    int pieceX = pieces[colorID][i].x;
+                    int pieceY = pieces[colorID][i].y;
                     int squareType = board[x][y];
                     if (squareType == 0 || //Square is free
                             (x == pieceX && y == pieceY) || //This piece is on the square
