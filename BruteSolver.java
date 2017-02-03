@@ -14,7 +14,7 @@ public class BruteSolver {
      * @param colorID specifies for which player we optimize
      * @return returns the optimal first move
      */
-    Move solve(State initalState, int colorID, int compTime)
+    Move solve(State initalState, int colorID, boolean moveOtherPieces, int compTime)
     {
         long startTime = System.currentTimeMillis();
         PriorityQueue<Node> open = new PriorityQueue<Node>();
@@ -42,7 +42,7 @@ public class BruteSolver {
                 continue;
 
             closed.add(current);
-            for (State target : currentNode.state.transitions()) {
+            for (State target : currentNode.state.transitions(colorID, moveOtherPieces )) {
                 //  if (current.G + 1 < target.node.G) { //TODO: maybe this breaks stuff? idk
                 if(closed.contains(new Integer(target.node.hashCode)))
                     continue;; //TODO:maybe this breaks stuff? idk

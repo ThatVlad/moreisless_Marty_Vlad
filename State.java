@@ -16,7 +16,7 @@ public class State {
 
     int time;
     int AP; //ability points
-    Move firstMoveMade;
+    public Move firstMoveMade;
 
     static Point[] goal = new Point[] {
             new Point(7,1),         //End goal of yellow
@@ -69,7 +69,7 @@ public class State {
                     int pieceY = Util.readY(pieces[colorID], i);
                     int squareType = board[x][y];
                     if (squareType == 0 || //Square is free
-                       (x == pieceX && y == pieceY) || //This piece is on the square
+                            (x == pieceX && y == pieceY) || //This piece is on the square
                             (squareType-10)/4 != colorID) { //Piece of other player is blocking square
                         int dist = Math.abs(x - pieceX) + Math.abs(y - pieceY);
                         min = Math.min(min, dist);
@@ -99,35 +99,44 @@ public class State {
             firstMoveMade.moveId[i] = s.firstMoveMade.moveId[i];
         }
         firstMoveMade.numMoves = s.firstMoveMade.numMoves;
+        firstMoveMade.APused = s.firstMoveMade.APused;
     }
 
-    ArrayList<State> transitions()
-    {
+    /**
+     *
+     * @param targetColor Player for who we are optimizing
+     * @return
+     */
+    ArrayList<State> transitions(int targetColor, boolean moveOtherPieces) {
         int colorID = time % 4; //Decide whose should move
+
 
         setBoard();
         ArrayList<State> L = new ArrayList<>();
+
+        if (colorID != targetColor && !moveOtherPieces) {
+            //time = ((time/4)+1)*4;
+        }
 
         ArrayList<Integer> order = swap();
         ArrayList<Integer> order2 = swap();
 
         //Do one step
-        for(int i2= 0; i2 < 4; i2++)
-        {
+        for (int i2 = 0; i2 < 4; i2++) {
             int i = order.get(i2);
-            for(int j2 = 0; j2 < 4; j2++) {
+            for (int j2 = 0; j2 < 4; j2++) {
                 int j = order2.get(j2);
 
-                Point location = Util.readPoint(pieces[colorID],i);
-                Point friendlyPos = new Point(location.x+Util.dx[j], location.y+Util.dy[j]);
-                Point newLoc = new Point(location.x+Util.dx[j], location.y+Util.dy[j]);
+                Point location = Util.readPoint(pieces[colorID], i);
+                Point friendlyPos = new Point(location.x + Util.dx[j], location.y + Util.dy[j]);
+                Point newLoc = new Point(location.x + Util.dx[j], location.y + Util.dy[j]);
 
-                int apCost = 1+ Walls.getWall(location, newLoc);
-                if(apCost != 1 && (AP+apCost)/4 != AP/4) //If you spend more than 1 AP for the move, and it costs you an extra turn, then skip move
+                int apCost = 1 + Walls.getWall(location, newLoc);
+                if ((AP + apCost - 1) / 3 != AP / 3) //If you spend more than 1 AP for the move, and it costs you an extra turn, then skip move
                     continue;
-                if((board[friendlyPos.x][friendlyPos.y] >= 10 + 4*colorID && board[friendlyPos.x][friendlyPos.y] < 4+4*colorID+10))      //there is friendly to jump over
+                if (board[friendlyPos.x][friendlyPos.y] >= 10)      //there is friendly to jump over
                 {
-                    Point jumpLoc = new Point(location.x+2*Util.dx[j], location.y+2*Util.dy[j]);
+                    Point jumpLoc = new Point(location.x + 2 * Util.dx[j], location.y + 2 * Util.dy[j]);
                     if (board[jumpLoc.x][jumpLoc.y] > 0)
                         continue; //There is a piece on location where you jump to
                     if (Walls.getWall(friendlyPos, jumpLoc) > 0)
@@ -139,39 +148,54 @@ public class State {
 
                     newState.pieces[colorID] = Util.updateXY(newState.pieces[colorID], i, jumpLoc.x, jumpLoc.y);
 
-                    newState.AP+=apCost;
-                    if (newState.AP > 3) {
-                        newState.time+=4;
+                    newState.AP += apCost;
+                    if ((newState.AP) % 3 == 0) {
+                        newState.time += 1;
                     }
 
-                    if(newState.AP <= 3) {
+                    if (newState.AP <= 3 && colorID == targetColor) {
                         newState.firstMoveMade.addMove(4 + j, i);
+                        newState.firstMoveMade.APused += apCost;
                     }
 
                     L.add((newState));
                 }
 
-                if(board[newLoc.x][newLoc.y] >0)
+                if (board[newLoc.x][newLoc.y] > 0)
                     continue;
 
                 State newState = new State(this, node.hashCode, colorID, location, newLoc); //Clone this state
-                newState.pieces[colorID] = Util.updateXY(newState.pieces[colorID], i, newLoc.x, newLoc.y);; //set new location
+                newState.pieces[colorID] = Util.updateXY(newState.pieces[colorID], i, newLoc.x, newLoc.y);
+                ; //set new location
 
-                newState.AP+= apCost;
-                if(newState.AP > 3) {
-                    newState.time+=4;
+                newState.AP += apCost;
+                if ((newState.AP) % 3 == 0) {
+                    newState.time += 1;
                 }
-                if(newState.AP <= 3) {
+                if (newState.AP <= 3 && colorID == targetColor) {
                     newState.firstMoveMade.addMove(j, i);
-                }
-
-                if((newState.AP) % 3 == 0) {
-                    int abc =123;
+                    newState.firstMoveMade.APused += apCost;
                 }
 
                 L.add((newState));
             }
         }
+
+        if (colorID != targetColor) {
+            State best = L.get(0);
+            int count = L.size();
+            double bestFit = best.fitness(colorID);
+            for (int i = 0; i < count; i++) {
+                double newFit = L.get(i).fitness(colorID);
+                if (newFit < bestFit) {
+                    best = L.get(i);
+                    bestFit = newFit;
+                }
+            }
+            L = new ArrayList<>();
+            L.add(best);
+        }
+
 
         return L;
     }

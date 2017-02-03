@@ -9,6 +9,7 @@ public class Move {
     int[] moveId;
     int[] pieceId;
     int numMoves = 0; //TODO: MAYBE ADD THIS TO HASHING??
+    int APused;
 
     public Move()
     {
@@ -35,6 +36,7 @@ public class Move {
         for (int i = 0; i < 4;  i++) {
             for (int j = 0; j < 4; j++) {
                 pieces[i][j] = new Point(TrueState.pieces[i][j]);
+                System.err.println("Truestate: Color " + i + ", Piece " + j + " coordinates: " + pieces[i][j].x + "," + pieces[i][j].y);
             }
         }
         // compute move coordinates for each move in the movelist

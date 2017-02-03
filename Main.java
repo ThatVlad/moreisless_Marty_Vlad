@@ -24,7 +24,7 @@ public class Main {
         Point[][] optMoveCoord = null;
 
         //long start = System.currentTimeMillis();
-        Move opt = solver.solve(init, Colors.myC,COMP_TIME);
+        Move opt = solver.solve(init, Colors.myC, false,COMP_TIME);
         //long dt = System.currentTimeMillis() - start;
 
         // execute own calculated move and output it for the others to see
@@ -64,7 +64,7 @@ public class Main {
         if (!lastMove) {
             //long start = System.currentTimeMillis();
             System.err.println("Starting solver.solve()...");
-            Move opt = solver.solve(init,Colors.myC,COMP_TIME);
+            Move opt = solver.solve(init,Colors.myC, false,COMP_TIME);
             System.err.println("OPT found");
             //long dt = System.currentTimeMillis() - start;
 
@@ -83,7 +83,7 @@ public class Main {
             System.err.print("OUT:");
             while(init.fitness(Colors.myC) > 0.001) {
                 //long start = System.currentTimeMillis();
-                Move opt = solver.solve(init,Colors.myC,COMP_TIME);
+                Move opt = solver.solve(init,Colors.myC, false, COMP_TIME);
                 //long dt = System.currentTimeMillis() - start;
                 optMoveCoord = opt.getMoveCoordinates();
                 TrueState.updateSelf(optMoveCoord);
@@ -158,7 +158,7 @@ public class Main {
             Point[] startLocs = new Point[] {
                     new Point(1,7),         //End goal of yellow
                     new Point(1,1),         //End goal of black
-                    new Point(7,7),         //End goal of white
+                    new Point(3,3),         //End goal of white
                     new Point(7,1),         //End goal of red
             };
             Point[][] pieces = new Point[4][4];
@@ -170,19 +170,19 @@ public class Main {
             }
 
             init.pieces = new int[4];
-         /*   for(int iPlayer = 0; iPlayer<4; iPlayer++) {
+            for(int iPlayer = 0; iPlayer<4; iPlayer++) {
                 for (int m = 0; m < 4; m++)
                     init.pieces[iPlayer] = Util.updateXY(init.pieces[iPlayer], m, pieces[iPlayer][m].x, pieces[iPlayer][m].y);
-            }*/
+            }/*
             for (int m = 0; m < 4; m++)
-                init.pieces[Colors.myC] = Util.updateXY(init.pieces[Colors.myC], m, pieces[Colors.myC][m].x, pieces[Colors.myC][m].y);
+                init.pieces[Colors.myC] = Util.updateXY(init.pieces[Colors.myC], m, pieces[Colors.myC][m].x, pieces[Colors.myC][m].y);*/
 
             solver = new BruteSolver();
             int numMoves = 0;
             long totTime = 0;
             while (init.fitness(Colors.myC) != 0) {
                 long start = System.currentTimeMillis();
-                Move move = solver.solve(init, Colors.myC,COMP_TIME);
+                Move move = solver.solve(init, Colors.myC, false, 5000);
                 long dt = System.currentTimeMillis() - start;
                 totTime += dt;
                 Point oldLoc;
