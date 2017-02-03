@@ -52,7 +52,7 @@ public class Main {
                 System.err.println("Caia tells to Quit");
                 return false;
             }
-            TrueState.decodeTurnAndUpdate(input, i);
+            TrueState.decodeTurnAndUpdate(input, (Colors.myC + 1 + i)%4);
         }
         System.err.println("Decoding successful");
         // now find optimal state
@@ -133,10 +133,9 @@ public class Main {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        System.err.println(System.currentTimeMillis());
         sc = new Scanner(System.in);
-        solver = new BruteSolver();
         TrueState.initializeTrueState();
+        solver = new BruteSolver();
         initialTurn();
         while(executeTurn()) {
             //continue as long as executeTurn() is not false (as long as it doesn't read "Quit")
